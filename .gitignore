@@ -1,3 +1,7 @@
+# WhatsApp session data (sensitive — do NOT commit)
+.wwebjs_auth/
+.wwebjs_cache/
+
 # Dependencies
 node_modules/
 frontend/node_modules/
