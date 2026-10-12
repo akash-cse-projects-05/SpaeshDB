@@ -1,3 +1,5 @@
+require('dotenv').config(); // ⚠️ MUST be first — loads MONGODB_URI before connectDB() is called
+
 const express = require('express');
 const path = require('path');
 const session = require('express-session');
@@ -35,8 +37,7 @@ const authLimiter = rateLimit({
 app.use('/auth', authLimiter);
 
 
-// Load environment variables
-require('dotenv').config();
+// Environment variables already loaded at the top of this file
 
 // Passport configuration
 require('./config/passport')(passport);
