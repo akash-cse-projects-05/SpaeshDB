@@ -57,9 +57,13 @@ app.use(express.static(path.join(__dirname, 'public')));
 const sessionOptions = {
   secret: process.env.SESSION_SECRET || 'sparsh_secret_key_default',
   resave: false,
-  saveUninitialized: false,
+  saveUninitialized: true,
+  proxy: true,
   cookie: {
-    maxAge: 1000 * 60 * 60 * 24 // 1 day
+    maxAge: 1000 * 60 * 60 * 24, // 1 day
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: 'auto'
   }
 };
 
@@ -111,6 +115,15 @@ app.use('/patient', patientRoutes);
 app.use('/doctor', doctorRoutes);
 app.use('/admin', adminRoutes);
 app.use('/appointments', appointmentRoutes);
+
+// CSRF Token Error Handler
+app.use((err, req, res, next) => {
+  if (err.code === 'EBADCSRFTOKEN') {
+    req.flash('error', 'Session expired or invalid submission. Please refresh the page and try again.');
+    return res.redirect(req.headers.referer || '/auth/login');
+  }
+  next(err);
+});
 
 // 404 Error handler
 app.use((req, res, next) => {
