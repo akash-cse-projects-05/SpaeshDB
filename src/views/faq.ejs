@@ -1,0 +1,69 @@
+<%- include('partials/header') %>
+
+<div class="airbnb-layout" style="max-width: 800px; margin: 0 auto; padding: 3rem 1rem;">
+  <div class="faq-section-header">
+    <h1 class="faq-title">Frequently Asked Questions</h1>
+    <p class="faq-subtitle">
+      Answers to common queries about Sparsh care pathways, payments, and patient security.
+    </p>
+  </div>
+
+  <div class="faq-accordion">
+    <details class="faq-item" open>
+      <summary>
+        <span>🔒 How is my anonymity protected?</span>
+      </summary>
+      <div class="faq-content">
+        <p>
+          When registering on Sparsh, patients can select the "Anonymous" registration checkbox. This hides your name and assigns a random placeholder identifier across all interfaces viewed by medical staff. Your email remains encrypted and is only used for system alerts.
+        </p>
+      </div>
+    </details>
+
+    <details class="faq-item">
+      <summary>
+        <span>⏰ What if I am past the 72-hour window for PEP?</span>
+      </summary>
+      <div class="faq-content">
+        <p>
+          If it has been more than 72 hours since potential exposure, PEP is generally not recommended as its effectiveness drops significantly. You should still book a general HIV counseling session immediately to outline testing timelines and discuss prevention options like PrEP.
+        </p>
+      </div>
+    </details>
+
+    <details class="faq-item">
+      <summary>
+        <span>🩺 Are the doctors on Sparsh licensed professionals?</span>
+      </summary>
+      <div class="faq-content">
+        <p>
+          Yes. All medical consultants and counselors on Sparsh undergo a verification process by our platform administrators. We verify qualifications, licensing registrations, and experience before activating their accounts on the dashboard.
+        </p>
+      </div>
+    </details>
+
+    <details class="faq-item">
+      <summary>
+        <span>💳 How does the billing and payment work?</span>
+      </summary>
+      <div class="faq-content">
+        <p>
+          Booking a consultation involves a nominal standard fee that goes directly to the counseling doctor. The booking system uses a simulated Razorpay and UPI checkout interface. You do not need real money to complete the simulation during this development stage.
+        </p>
+      </div>
+    </details>
+
+    <details class="faq-item">
+      <summary>
+        <span>💊 How do I get my prescriptions?</span>
+      </summary>
+      <div class="faq-content">
+        <p>
+          Once a doctor completes your consultation, they will attach a digital prescription with detailed medication schedules directly to your appointment. You can view, download, or show it to your local pharmacy.
+        </p>
+      </div>
+    </details>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,245 @@
+<%- include('../partials/header') %>
+
+<div style="max-width: 800px; margin: 2rem auto; padding: 0 1rem;">
+  
+  <!-- Back link -->
+  <div style="margin-bottom: 2rem;">
+    <a href="/patient/dashboard" style="color: var(--primary); font-weight: 600; display: inline-flex; align-items: center; gap: 0.35rem; text-decoration: none;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      Return to My Portal
+    </a>
+  </div>
+
+  <div style="text-align: center; margin-bottom: 2.5rem;">
+    <h1 style="font-size: 2.2rem; font-weight: 800; color: var(--text); letter-spacing: -0.02em; margin-bottom: 0.5rem;">📅 PrEP Adherence Calendar</h1>
+    <p style="color: var(--text-secondary); font-size: 1rem;">Track daily dose intake, monitor streak compliance, and stay protected.</p>
+  </div>
+
+  <% if (!prep.isActive) { %>
+    <!-- Activation Card -->
+    <div class="card-premium" style="text-align: center; padding: 4rem 2rem; border-radius: 16px; background: rgba(13, 148, 136, 0.02); border-color: rgba(13, 148, 136, 0.15);">
+      <div style="width: 64px; height: 64px; background: rgba(13, 148, 136, 0.08); color: var(--primary); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 1.5rem;">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.5 20.5L3.5 13.5A5 5 0 0 1 10.5 6.5L17.5 13.5A5 5 0 0 1 10.5 20.5z"/><line x1="7" y1="10" x2="14" y2="17"/></svg>
+      </div>
+      <h2 style="font-size: 1.5rem; font-weight: 700; color: var(--text); margin-bottom: 0.75rem;">Daily Compliance Log</h2>
+      <p style="color: var(--text-secondary); max-width: 500px; margin: 0 auto 2rem; font-size: 0.95rem; line-height: 1.6;">
+        Consistency is key. Daily PrEP reduces your HIV infection risk by up to 99%. Activate the adherence log tool to track your daily pill schedule and verify your defense logs.
+      </p>
+      <form action="/patient/prep-tracker/activate" method="POST">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <button type="submit" class="btn btn-primary" style="padding: 0.75rem 2rem; font-weight: 700; font-size: 1rem; border-radius: 10px; background: linear-gradient(135deg, var(--primary), #0f766e);">
+          Activate PrEP Tracker
+        </button>
+      </form>
+    </div>
+  <% } else { %>
+    <!-- Tracker Active UI -->
+    
+    <!-- Streak and Stat Row -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+      <div class="card-premium" style="text-align: center; padding: 1.25rem;">
+        <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: var(--text-secondary); letter-spacing: 0.05em; display: block; margin-bottom: 0.5rem;">🔥 Current Streak</span>
+        <strong id="streak-counter" style="font-size: 2.2rem; font-weight: 800; color: #f97316; display: block; line-height: 1;"><%= prep.currentStreak || 0 %></strong>
+        <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 500; margin-top: 0.25rem; display: block;">Days in a row</span>
+      </div>
+      <div class="card-premium" style="text-align: center; padding: 1.25rem;">
+        <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: var(--text-secondary); letter-spacing: 0.05em; display: block; margin-bottom: 0.5rem;">📊 Adherence Rate</span>
+        <strong id="adherence-rate" style="font-size: 2.2rem; font-weight: 800; color: var(--primary); display: block; line-height: 1;">--%</strong>
+        <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 500; margin-top: 0.25rem; display: block;">Log history compliance</span>
+      </div>
+      <div class="card-premium" style="text-align: center; padding: 1.25rem;">
+        <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: var(--text-secondary); letter-spacing: 0.05em; display: block; margin-bottom: 0.5rem;">📅 Plan Started</span>
+        <strong style="font-size: 1.2rem; font-weight: 800; color: var(--text); display: block; line-height: 1.8; margin-top: 0.5rem;"><%= new Date(prep.startDate).toISOString().split('T')[0] %></strong>
+        <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 500; margin-top: 0.25rem; display: block;">Tracking Start Date</span>
+      </div>
+    </div>
+
+    <!-- Calendar Card -->
+    <div class="card-premium" style="border-radius: 16px; padding: 2rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <button onclick="changeMonth(-1)" class="btn" style="background: var(--bg); border: 1px solid var(--border); padding: 0.5rem; border-radius: 8px; font-weight: 700; cursor: pointer; color: var(--text);">←</button>
+        <h3 id="calendar-title" style="font-size: 1.25rem; font-weight: 800; color: var(--text); margin: 0;">July 2026</h3>
+        <button onclick="changeMonth(1)" class="btn" style="background: var(--bg); border: 1px solid var(--border); padding: 0.5rem; border-radius: 8px; font-weight: 700; cursor: pointer; color: var(--text);">→</button>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.5rem; text-align: center; font-weight: 700; font-size: 0.8rem; color: var(--text-secondary); border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; margin-bottom: 0.5rem;">
+        <div>SUN</div>
+        <div>MON</div>
+        <div>TUE</div>
+        <div>WED</div>
+        <div>THU</div>
+        <div>FRI</div>
+        <div>SAT</div>
+      </div>
+
+      <div id="calendar-grid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.5rem; text-align: center;">
+        <!-- Day cells filled dynamically by JS -->
+      </div>
+    </div>
+
+    <!-- Tips and Warnings -->
+    <div class="card-premium" style="background: rgba(13, 148, 136, 0.02); border-color: rgba(13, 148, 136, 0.15); margin-top: 2rem; display: flex; gap: 1rem; padding: 1.5rem;">
+      <div style="font-size: 1.5rem; color: var(--primary);">💡</div>
+      <div>
+        <h4 style="margin: 0 0 0.25rem 0; font-weight: 700; color: var(--text); font-size: 0.95rem;">PrEP Adherence Guidelines</h4>
+        <p style="margin: 0; color: var(--text-secondary); font-size: 0.85rem; line-height: 1.6;">
+          • Try to take your pill at the <strong>same time every day</strong> to build a solid routine.<br>
+          • If you miss a dose, take it as soon as you remember, unless it's almost time for the next dose. Do not double the dose.<br>
+          • PrEP requires consistent compliance. Streak drops might impact preventative coverage levels. Consult your physician in follow-up chats if you have compliance concerns.
+        </p>
+      </div>
+    </div>
+
+    <!-- Inject data safely and build calendar logic -->
+    <script>
+      const adherenceLog = <%- JSON.stringify(prep.adherenceLog || []) %>;
+      let currentYear = new Date().getFullYear();
+      let currentMonth = new Date().getMonth(); // 0-11
+
+      const monthNames = [
+        "January", "February", "March", "April", "May", "June", 
+        "July", "August", "September", "October", "November", "December"
+      ];
+
+      function renderCalendar() {
+        const firstDayIndex = new Date(currentYear, currentMonth, 1).getDay();
+        const lastDay = new Date(currentYear, currentMonth + 1, 0).getDate();
+        
+        document.getElementById('calendar-title').innerText = `${monthNames[currentMonth]} ${currentYear}`;
+        
+        const grid = document.getElementById('calendar-grid');
+        grid.innerHTML = '';
+
+        // Fill blanks for days of previous month
+        for (let i = 0; i < firstDayIndex; i++) {
+          const blank = document.createElement('div');
+          blank.style.padding = '1rem 0';
+          grid.appendChild(blank);
+        }
+
+        // Fill month days
+        const todayStr = new Date().toISOString().split('T')[0];
+        
+        for (let day = 1; day <= lastDay; day++) {
+          const dayCell = document.createElement('div');
+          const dateStr = `${currentYear}-${(currentMonth + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+          
+          dayCell.className = 'calendar-day';
+          dayCell.style = 'padding: 0.75rem 0; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; transition: all 0.2s; font-weight: 600; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; min-height: 52px; background: white;';
+          
+          const label = document.createElement('span');
+          label.innerText = day;
+          dayCell.appendChild(label);
+
+          // Find log entry
+          const logEntry = adherenceLog.find(e => e.date === dateStr);
+          const isTaken = logEntry && logEntry.taken;
+
+          if (isTaken) {
+            dayCell.style.background = 'rgba(13, 148, 136, 0.15)';
+            dayCell.style.borderColor = 'var(--primary)';
+            dayCell.style.color = 'var(--primary)';
+            
+            const check = document.createElement('span');
+            check.innerText = '✔️';
+            check.style.fontSize = '0.65rem';
+            check.style.marginTop = '0.1rem';
+            dayCell.appendChild(check);
+          } else {
+            // Check if day is in future
+            if (new Date(dateStr) > new Date()) {
+              dayCell.style.color = 'var(--text-muted)';
+              dayCell.style.opacity = '0.5';
+              dayCell.style.cursor = 'default';
+            }
+          }
+
+          if (dateStr === todayStr) {
+            dayCell.style.boxShadow = '0 0 0 2px var(--primary) inset';
+          }
+
+          // Trigger log on click (only past/today)
+          if (new Date(dateStr) <= new Date()) {
+            dayCell.onclick = async () => {
+              try {
+                const response = await fetch('/patient/prep-tracker/log', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'x-csrf-token': '<%= csrfToken %>'
+                  },
+                  body: JSON.stringify({ date: dateStr })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                  // Toggle locally
+                  const existingIdx = adherenceLog.findIndex(e => e.date === dateStr);
+                  if (existingIdx >= 0) {
+                    adherenceLog[existingIdx].taken = !adherenceLog[existingIdx].taken;
+                  } else {
+                    adherenceLog.push({ date: dateStr, taken: true });
+                  }
+                  
+                  // Update UI streak
+                  document.getElementById('streak-counter').innerText = data.streak;
+                  
+                  // Re-render
+                  renderCalendar();
+                  calculateStats();
+                }
+              } catch (e) {
+                console.error(e);
+              }
+            };
+          }
+          grid.appendChild(dayCell);
+        }
+      }
+
+      function calculateStats() {
+        if (adherenceLog.length === 0) {
+          document.getElementById('adherence-rate').innerText = '0%';
+          return;
+        }
+        
+        // Count entries that occurred between plan startDate and today
+        const start = new Date('<%= prep.startDate %>');
+        const today = new Date();
+        let totalDays = 0;
+        let takenDays = 0;
+        
+        for (let d = new Date(start); d <= today; d.setDate(d.getDate() + 1)) {
+          totalDays++;
+          const dateStr = d.toISOString().split('T')[0];
+          const entry = adherenceLog.find(e => e.date === dateStr);
+          if (entry && entry.taken) {
+            takenDays++;
+          }
+        }
+        
+        const rate = totalDays > 0 ? Math.round((takenDays / totalDays) * 100) : 100;
+        document.getElementById('adherence-rate').innerText = `${rate}%`;
+      }
+
+      function changeMonth(direction) {
+        currentMonth += direction;
+        if (currentMonth < 0) {
+          currentMonth = 11;
+          currentYear--;
+        } else if (currentMonth > 11) {
+          currentMonth = 0;
+          currentYear++;
+        }
+        renderCalendar();
+      }
+
+      document.addEventListener('DOMContentLoaded', () => {
+        renderCalendar();
+        calculateStats();
+      });
+    </script>
+  <% } %>
+</div>
+
+<%- include('../partials/footer') %>

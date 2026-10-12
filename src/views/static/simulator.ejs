@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    
+    .chat-bg {
+      background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png');
+      background-repeat: repeat;
+      background-color: #efeae2;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 h-screen flex flex-col font-sans">
+  
+  <!-- Navbar -->
+  <header class="bg-teal-700 text-white p-4 shadow-md flex items-center shrink-0">
+    <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center text-teal-700 font-bold text-xl mr-3">
+      AI
+    </div>
+    <div>
+      <h1 class="font-semibold text-lg leading-tight">Sparsh AI Assistant</h1>
+      <p class="text-xs text-teal-100">Testing Sandbox - Simulated Environment</p>
+    </div>
+    <div class="ml-auto flex gap-3 text-sm">
+      <a href="/" class="hover:underline opacity-80">Back to App</a>
+    </div>
+  </header>
+
+  <!-- Chat Container -->
+  <main id="chat-container" class="flex-1 overflow-y-auto chat-bg p-4 flex flex-col gap-4">
+    <!-- Initial Instruction -->
+    <div class="flex justify-center mb-4">
+      <div class="bg-yellow-100 text-yellow-800 text-xs px-3 py-1.5 rounded-md shadow-sm border border-yellow-200 text-center max-w-sm">
+        Welcome to the Bot Simulator. Messages sent here will trigger the backend AI logic without hitting Twilio. Try sending <b>hi</b> or <b>BOOK</b>.
+      </div>
+    </div>
+  </main>
+
+  <!-- Input Area -->
+  <footer class="bg-gray-50 p-3 shrink-0 flex items-center gap-2">
+    <input type="text" id="phoneInput" value="whatsapp:+19998887777" class="bg-white border border-gray-300 text-gray-700 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-40 p-2.5 outline-none" title="Simulated Phone Number">
+    <input type="text" id="messageInput" placeholder="Type a message..." class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5 outline-none" autofocus autocomplete="off">
+    <button id="sendBtn" class="text-white bg-teal-600 hover:bg-teal-700 focus:ring-4 focus:outline-none focus:ring-teal-300 font-medium rounded-full text-sm p-2.5 text-center inline-flex items-center">
+      <svg class="w-5 h-5 transform rotate-45 -mt-1 -ml-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+      </svg>
+      <span class="sr-only">Send message</span>
+    </button>
+  </footer>
+
+  <script>
+    const chatContainer = document.getElementById('chat-container');
+    const messageInput = document.getElementById('messageInput');
+    const phoneInput = document.getElementById('phoneInput');
+    const sendBtn = document.getElementById('sendBtn');
+
+    function addMessage(text, sender) {
+      const wrapper = document.createElement('div');
+      wrapper.className = `flex ${sender === 'user' ? 'justify-end' : 'justify-start'}`;
+      
+      const bubble = document.createElement('div');
+      bubble.className = `max-w-[75%] px-4 py-2 rounded-lg shadow-sm text-sm whitespace-pre-wrap ${
+        sender === 'user' 
+          ? 'bg-[#d9fdd3] text-gray-900 rounded-tr-none' 
+          : 'bg-white text-gray-900 rounded-tl-none border border-gray-100'
+      }`;
+      bubble.textContent = text;
+      
+      // Formatting basic markdown-style bold
+      bubble.innerHTML = bubble.innerHTML.replace(/\\*(.*?)\\*/g, '<strong>$1</strong>');
+
+      const timeSpan = document.createElement('span');
+      timeSpan.className = "text-[10px] text-gray-400 ml-3 float-right mt-1";
+      timeSpan.innerText = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+      
+      bubble.appendChild(timeSpan);
+      wrapper.appendChild(bubble);
+      chatContainer.appendChild(wrapper);
+      
+      // Auto scroll
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    async function sendMessage() {
+      const text = messageInput.value.trim();
+      const phone = phoneInput.value.trim();
+      
+      if (!text || !phone) return;
+      
+      // 1. Add user message to UI
+      addMessage(text, 'user');
+      messageInput.value = '';
+      
+      // Show typing indicator
+      const typingId = 'typing-' + Date.now();
+      const typingWrapper = document.createElement('div');
+      typingWrapper.id = typingId;
+      typingWrapper.className = 'flex justify-start opacity-70';
+      typingWrapper.innerHTML = `<div class="bg-white text-gray-500 text-xs italic px-4 py-2 rounded-lg rounded-tl-none shadow-sm">AI is typing...</div>`;
+      chatContainer.appendChild(typingWrapper);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+
+      try {
+        // 2. Send to backend
+        const response = await fetch('/api/webhooks/simulate-bot', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ From: phone, Body: text })
+        });
+        
+        const data = await response.json();
+        
+        // Remove typing
+        document.getElementById(typingId)?.remove();
+
+        // 3. Add bot reply to UI
+        if (data.reply) {
+          addMessage(data.reply, 'bot');
+        } else if (data.error) {
+          addMessage("Error: " + data.error, 'bot');
+        }
+      } catch (err) {
+        document.getElementById(typingId)?.remove();
+        addMessage("Network Error: Could not reach the backend.", 'bot');
+      }
+    }
+
+    sendBtn.addEventListener('click', sendMessage);
+    messageInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') sendMessage();
+    });
+  </script>
+</body>
+</html>

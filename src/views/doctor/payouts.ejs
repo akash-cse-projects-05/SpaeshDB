@@ -1,0 +1,125 @@
+<%- include('../partials/header') %>
+
+<style>
+  .dashboard-container {
+    max-width: 1200px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+    box-sizing: border-box;
+  }
+  .revenue-card {
+    background: linear-gradient(135deg, #0f766e 0%, #0d9488 100%);
+    color: white;
+    border-radius: 16px;
+    padding: 2.5rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 10px 25px -5px rgba(13, 148, 136, 0.4);
+    margin-bottom: 2.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .revenue-card::before {
+    content: '₹';
+    position: absolute;
+    right: -20px;
+    bottom: -40px;
+    font-size: 14rem;
+    color: rgba(255,255,255,0.1);
+    font-weight: 800;
+    line-height: 1;
+    pointer-events: none;
+  }
+  .amount-display {
+    font-size: 3.5rem;
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin: 0.5rem 0;
+  }
+</style>
+
+<div class="dashboard-container">
+  
+  <div style="margin-bottom: 1.5rem;">
+    <a href="/doctor/dashboard" style="color: var(--text-secondary); text-decoration: none; font-weight: 600; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 0.4rem;">
+      ← Back to Dashboard
+    </a>
+  </div>
+
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+    <div>
+      <h1 style="font-size: 2.2rem; font-weight: 800; margin: 0; color: var(--text); letter-spacing: -0.02em;">Payouts & Revenue</h1>
+      <p style="color: var(--text-secondary); margin: 0.3rem 0 0 0;">Track your completed consultations and earnings.</p>
+    </div>
+  </div>
+
+  <!-- Revenue Summary Card -->
+  <div class="revenue-card">
+    <div style="z-index: 1;">
+      <div style="text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.85rem; font-weight: 700; opacity: 0.85;">Total Generated Revenue</div>
+      <div class="amount-display">₹<%= totalRevenue.toLocaleString() %></div>
+      <div style="font-size: 0.95rem; font-weight: 500; opacity: 0.9;">From <%= paidAppointments.length %> paid consultation<%= paidAppointments.length === 1 ? '' : 's' %></div>
+    </div>
+    <div style="background: rgba(255,255,255,0.2); padding: 1rem 1.5rem; border-radius: 12px; backdrop-filter: blur(5px); z-index: 1; text-align: center;">
+      <div style="font-size: 0.8rem; font-weight: 600; text-transform: uppercase; margin-bottom: 0.2rem;">Available for Transfer</div>
+      <div style="font-size: 1.5rem; font-weight: 800;">₹<%= totalRevenue.toLocaleString() %></div>
+      <button class="btn" style="background: white; color: #0d9488; width: 100%; margin-top: 0.75rem; border: none; font-weight: 700; border-radius: 8px;">Withdraw Funds</button>
+    </div>
+  </div>
+
+  <!-- Payout History Table -->
+  <h2 style="font-size: 1.4rem; font-weight: 700; margin-bottom: 1rem; color: var(--text);">Transaction History</h2>
+  
+  <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 4px 12px -2px rgba(0,0,0,0.03); overflow-x: auto;">
+    <table style="width: 100%; border-collapse: collapse; text-align: left;">
+      <thead>
+        <tr style="border-bottom: 1px solid var(--border); background: rgba(0,0,0,0.015);">
+          <th style="padding: 1.25rem 1.5rem; font-weight: 600; color: var(--text-secondary); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.02em;">Date</th>
+          <th style="padding: 1.25rem 1.5rem; font-weight: 600; color: var(--text-secondary); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.02em;">Patient</th>
+          <th style="padding: 1.25rem 1.5rem; font-weight: 600; color: var(--text-secondary); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.02em;">Transaction ID</th>
+          <th style="padding: 1.25rem 1.5rem; font-weight: 600; color: var(--text-secondary); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.02em;">Status</th>
+          <th style="padding: 1.25rem 1.5rem; font-weight: 600; color: var(--text-secondary); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.02em; text-align: right;">Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (paidAppointments.length > 0) { %>
+          <% paidAppointments.forEach(app => { %>
+            <tr style="border-bottom: 1px solid var(--border);">
+              <td style="padding: 1.25rem 1.5rem; font-weight: 500;">
+                <%= new Date(app.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) %>
+              </td>
+              <td style="padding: 1.25rem 1.5rem; color: var(--text-secondary);">
+                <%= app.patientId ? (app.patientId.isAnonymous ? 'Anonymous User' : app.patientId.name) : 'Unknown' %>
+              </td>
+              <td style="padding: 1.25rem 1.5rem; font-family: monospace; color: var(--text-muted); font-size: 0.9rem;">
+                TXN-<%= app._id.toString().substring(0, 8).toUpperCase() %>
+              </td>
+              <td style="padding: 1.25rem 1.5rem;">
+                <span style="background: rgba(16, 185, 129, 0.1); color: #10b981; padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700;">
+                  ✓ Paid
+                </span>
+              </td>
+              <td style="padding: 1.25rem 1.5rem; text-align: right; font-weight: 700; color: #0d9488;">
+                + ₹<%= app.paymentDetails.amount %>
+              </td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="5" style="padding: 3rem; text-align: center; color: var(--text-secondary);">
+              <div style="font-size: 2rem; margin-bottom: 0.5rem;">💸</div>
+              <div style="font-weight: 600;">No transactions yet</div>
+              <p style="font-size: 0.9rem; margin-top: 0.25rem;">Completed consultations will appear here.</p>
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<%- include('../partials/footer') %>

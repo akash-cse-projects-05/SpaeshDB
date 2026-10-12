@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= typeof title !== 'undefined' ? title : 'Sparsh – Touch of Care' %></title>
+  <meta name="description" content="Sparsh – Confidential HIV consultation platform offering PEP, PrEP and General HIV Counselling.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header>
+    <div class="nav-container">
+      <a href="/" class="logo">
+        <div class="logo-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+        </div>
+        Sparsh
+      </a>
+
+      <nav>
+        <ul class="nav-links">
+          <li><a href="/">Home</a></li>
+          <li><a href="/#about">About</a></li>
+          <li><a href="/#services">Services</a></li>
+          <li><a href="/blog">Blog</a></li>
+          <li><a href="/faq">FAQ</a></li>
+        </ul>
+      </nav>
+
+      <div class="nav-buttons" style="display: flex; align-items: center; gap: 0.5rem;">
+        <!-- Language Switcher Button -->
+        <button id="lang-toggle-btn" onclick="toggleLanguage()" class="btn btn-secondary" style="padding: 0.4rem 0.65rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px; background: var(--bg); border: 1px solid var(--border); display: inline-flex; align-items: center; gap: 0.3rem;" title="Switch Language (English / Hindi)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          <span id="lang-label">EN</span>
+        </button>
+
+        <% const user = (typeof currentUser !== 'undefined' && currentUser) ? currentUser : null; %>
+        <% if (user) { %>
+          <%
+            let dashLink = '/patient/dashboard';
+            if (user.role === 'doctor') dashLink = '/doctor/dashboard';
+            if (user.role === 'admin')  dashLink = '/admin/dashboard';
+          %>
+          
+          <!-- Live Notification Center Bell -->
+          <div style="position: relative; display: inline-block;">
+            <button onclick="toggleNotificationDropdown()" class="btn btn-secondary" style="padding: 0.45rem 0.65rem; border-radius: 8px; position: relative; background: var(--bg); border: 1px solid var(--border);" title="Notifications">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+              <span style="position: absolute; top: -3px; right: -3px; width: 8px; height: 8px; border-radius: 50%; background: #0d9488; border: 2px solid white;"></span>
+            </button>
+
+            <div id="notif-dropdown" style="display: none; position: absolute; right: 0; top: 125%; width: 290px; background: var(--card-bg, #ffffff); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 12px 30px rgba(0,0,0,0.12); z-index: 1000; padding: 0.75rem; font-size: 0.82rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; margin-bottom: 0.5rem;">
+                <strong style="color: var(--text); font-size: 0.85rem;">System Notifications</strong>
+                <span style="font-size: 0.7rem; color: var(--primary); font-weight: 700; background: rgba(13,148,136,0.1); padding: 0.1rem 0.4rem; border-radius: 4px;">Live</span>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 0.6rem;">
+                <div style="padding: 0.4rem; border-radius: 6px; background: rgba(13,148,136,0.04); border-left: 3px solid var(--primary);">
+                  <strong style="color: var(--text); display: block;">✓ Appointment Confirmed</strong>
+                  <span style="color: var(--text-secondary); font-size: 0.75rem;">Practitioner confirmed your consultation slot.</span>
+                </div>
+                <div style="padding: 0.4rem; border-radius: 6px; background: rgba(37,99,235,0.04); border-left: 3px solid #2563eb;">
+                  <strong style="color: var(--text); display: block;">💊 Digital Rx Memorandum</strong>
+                  <span style="color: var(--text-secondary); font-size: 0.75rem;">Digital prescription updated for download.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <a href="<%= dashLink %>" class="btn btn-secondary desktop-only-btn" style="gap: 0.35rem;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="7" r="4"/><path d="M5.5 21a6.5 6.5 0 0113 0"/></svg>
+            Dashboard
+          </a>
+          <a href="/auth/logout" class="btn btn-secondary desktop-only-btn" style="gap: 0.35rem;" title="Logout">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          </a>
+        <% } else { %>
+          <a href="/book" class="btn btn-primary desktop-only-btn">Book Consultation</a>
+          <a href="/auth/login" class="btn btn-secondary desktop-only-btn">Login</a>
+        <% } %>
+
+        <!-- Mobile Navigation Hamburger Toggle Button -->
+        <button id="mobile-nav-toggle" class="mobile-nav-toggle-btn" onclick="toggleMobileNav()" aria-label="Toggle Navigation Menu">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <line x1="3" y1="12" x2="21" y2="12"/>
+            <line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Navigation Drawer Backdrop & Panel -->
+  <div id="mobile-nav-backdrop" class="mobile-nav-backdrop" onclick="closeMobileNav()"></div>
+  <aside id="mobile-nav-drawer" class="mobile-nav-drawer" aria-label="Mobile menu">
+    <div class="mobile-drawer-header">
+      <a href="/" class="logo" onclick="closeMobileNav()">
+        <div class="logo-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+        </div>
+        Sparsh
+      </a>
+      <button class="mobile-drawer-close" onclick="closeMobileNav()" aria-label="Close Navigation Menu">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="mobile-drawer-body">
+      <ul class="mobile-drawer-links">
+        <li><a href="/" onclick="closeMobileNav()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg> Home</a></li>
+        <li><a href="/#about" onclick="closeMobileNav()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg> About Us</a></li>
+        <li><a href="/#services" onclick="closeMobileNav()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> Clinical Services</a></li>
+        <li><a href="/blog" onclick="closeMobileNav()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> Health Blog</a></li>
+        <li><a href="/faq" onclick="closeMobileNav()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> FAQ</a></li>
+      </ul>
+
+      <div class="mobile-drawer-actions">
+        <% if (user) { %>
+          <%
+            let dashLinkMobile = '/patient/dashboard';
+            if (user.role === 'doctor') dashLinkMobile = '/doctor/dashboard';
+            if (user.role === 'admin')  dashLinkMobile = '/admin/dashboard';
+          %>
+          <a href="<%= dashLinkMobile %>" class="btn btn-primary btn-full" onclick="closeMobileNav()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="7" r="4"/><path d="M5.5 21a6.5 6.5 0 0113 0"/></svg>
+            Dashboard
+          </a>
+          <a href="/auth/logout" class="btn btn-secondary btn-full" onclick="closeMobileNav()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            Logout
+          </a>
+        <% } else { %>
+          <a href="/book" class="btn btn-primary btn-full" onclick="closeMobileNav()">Book Consultation</a>
+          <a href="/auth/login" class="btn btn-secondary btn-full" onclick="closeMobileNav()">Patient / Doctor Login</a>
+        <% } %>
+      </div>
+    </div>
+  </aside>
+
+  <script>
+    function toggleLanguage() {
+      var currentLang = localStorage.getItem('sparsh_lang') || 'EN';
+      var nextLang = currentLang === 'EN' ? 'HI' : 'EN';
+      localStorage.setItem('sparsh_lang', nextLang);
+      var label = document.getElementById('lang-label');
+      if (label) label.textContent = nextLang;
+      alert(nextLang === 'HI' ? 'हिंदी भाषा मोड सक्रिय (Hindi Mode Activated)' : 'English Mode Activated');
+    }
+
+    function toggleMobileNav() {
+      var drawer = document.getElementById('mobile-nav-drawer');
+      var backdrop = document.getElementById('mobile-nav-backdrop');
+      if (drawer && backdrop) {
+        var isOpen = drawer.classList.contains('open');
+        if (isOpen) {
+          closeMobileNav();
+        } else {
+          drawer.classList.add('open');
+          backdrop.classList.add('open');
+          document.body.style.overflow = 'hidden';
+        }
+      }
+    }
+
+    function closeMobileNav() {
+      var drawer = document.getElementById('mobile-nav-drawer');
+      var backdrop = document.getElementById('mobile-nav-backdrop');
+      if (drawer && backdrop) {
+        drawer.classList.remove('open');
+        backdrop.classList.remove('open');
+        document.body.style.overflow = '';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      var currentLang = localStorage.getItem('sparsh_lang') || 'EN';
+      var label = document.getElementById('lang-label');
+      if (label) label.textContent = currentLang;
+    });
+
+    function toggleNotificationDropdown() {
+      var dropdown = document.getElementById('notif-dropdown');
+      if (dropdown) {
+        dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+      }
+    }
+    document.addEventListener('click', function(e) {
+      var dropdown = document.getElementById('notif-dropdown');
+      var btn = e.target.closest('button');
+      if (dropdown && dropdown.style.display === 'block') {
+        if (!e.target.closest('#notif-dropdown') && (!btn || !btn.getAttribute('onclick') || !btn.getAttribute('onclick').includes('toggleNotificationDropdown'))) {
+          dropdown.style.display = 'none';
+        }
+      }
+    });
+  </script>
+
+  <main>
+    <%
+      const flashSuccess = typeof success !== 'undefined' && success && success.length > 0 ? success : null;
+      const flashError   = typeof error   !== 'undefined' && error   && error.length   > 0 ? error   : null;
+    %>
+    <% if (flashSuccess || flashError) { %>
+      <div style="position: relative; z-index: 50; margin-bottom: 2rem;">
+        <% if (flashSuccess) { %>
+          <div class="alert alert-success" id="flash-alert">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            <%= flashSuccess %>
+          </div>
+        <% } %>
+        <% if (flashError) { %>
+          <div class="alert alert-danger" id="flash-alert">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <%= flashError %>
+          </div>
+        <% } %>
+      </div>
+    <% } %>

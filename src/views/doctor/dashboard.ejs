@@ -1,0 +1,664 @@
+<%- include('../partials/header') %>
+
+<style>
+  /* 3D Card Animation from Landing Page */
+  .animated-3d-card {
+    transform: rotateY(-6deg) rotateX(3deg);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .animated-3d-card:hover {
+    transform: rotateY(0deg) rotateX(0deg) translateY(-5px) scale(1.02);
+    border-color: rgba(13, 148, 136, 0.35) !important;
+    box-shadow: 0 30px 60px -15px rgba(13, 148, 136, 0.2) !important;
+    z-index: 10;
+  }
+</style>
+
+  <!-- Expanded Max-Width for High-Resolution Screens -->
+  <div class="dashboard-container"
+    style="max-width: 1200px; width: 100%; margin: 0 auto; padding: 1.5rem 1.25rem; box-sizing: border-box;">
+
+    <!-- Header Block -->
+    <div class="dashboard-header doctor-dashboard-header"
+      style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border);">
+      <div>
+        <h1 class="dashboard-title"
+          style="font-size: 2.0rem; font-weight: 700; color: var(--text); letter-spacing: -0.03em; margin: 0 0 0.35rem 0; display: flex; align-items: center; gap: 0.5rem;">
+          <span>🩺</span> Doctor Workspace
+        </h1>
+        <p class="dashboard-welcome" style="color: var(--text-secondary); font-size: 0.95rem; margin: 0;">
+          Welcome back, Dr. <%= doctor.name.replace(/^Dr\.\s*/i, '' ) %>
+        </p>
+      </div>
+      <div style="display: flex; gap: 0.75rem;">
+        <a href="/doctor/payouts" class="btn btn-primary"
+          style="padding: 0.55rem 1.25rem; font-size: 0.85rem; font-weight: 700; text-decoration: none; border-radius: 6px; box-shadow: 0 4px 12px rgba(13, 148, 136, 0.15); display: flex; align-items: center; gap: 0.5rem;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          Payouts
+        </a>
+        <a href="/doctor/profile" class="btn btn-secondary"
+          style="padding: 0.55rem 1.25rem; font-size: 0.85rem; font-weight: 500; text-decoration: none; border: 1px solid var(--border); border-radius: 6px; color: var(--text); background: var(--bg); transition: all 0.2s; display: inline-flex; align-items: center; gap: 0.4rem;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          View Profile
+        </a>
+      </div>
+    </div>
+
+    <!-- Primary Section Navigation -->
+    <div class="navigation-tabs" role="tablist" aria-label="Doctor dashboard sections"
+      style="margin-bottom: 2rem; display: flex; gap: 2rem; border-bottom: 1px solid var(--border); background: transparent; padding: 0; border-radius: 0;">
+      <button class="navigation-tab active" type="button" data-panel="appointments"
+        style="padding: 0.75rem 0.5rem; font-weight: 600; font-size: 1rem; border: none; background: transparent; border-bottom: 2px solid var(--primary); color: var(--text); cursor: pointer; border-radius: 0; flex: none; display: inline-flex; align-items: center; gap: 0.45rem;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Consultation Hub
+      </button>
+      <button class="navigation-tab" type="button" data-panel="availability"
+        style="padding: 0.75rem 0.5rem; font-weight: 500; font-size: 1rem; border: none; background: transparent; border-bottom: 2px solid transparent; color: var(--text-secondary); cursor: pointer; border-radius: 0; flex: none; display: inline-flex; align-items: center; gap: 0.45rem;">
+        <span>🩺</span> Availability Slots
+      </button>
+    </div>
+
+    <!-- SECTION 1: Appointments Workspace (Now Spans Elegantly Across Full Width) -->
+    <section id="appointments" class="dashboard-panel active" role="tabpanel">
+
+      <% const pendingApps=appointments.filter(a=> (a.status || 'Pending').toLowerCase() === 'pending');
+        const activeApps = appointments.filter(a => ['confirmed', 'upcoming'].includes((a.status || '').toLowerCase()));
+        %>
+
+        <!-- Visual Analytics Dashboard -->
+        <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.15rem; margin-bottom: 1.5rem; box-shadow: 0 4px 12px -2px rgba(0,0,0,0.03);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+            <h3 style="font-size: 1rem; font-weight: 700; color: var(--text); margin: 0;">Consultation Trends</h3>
+            <span style="font-size: 0.75rem; font-weight: 600; color: var(--primary); background: rgba(13, 148, 136, 0.1); padding: 0.15rem 0.5rem; border-radius: 12px;">Next 7 Days</span>
+          </div>
+          <div style="position: relative; height: 180px; width: 100%;">
+            <canvas id="consultationChart"></canvas>
+          </div>
+        </div>
+
+        <div
+          style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem;">
+          <div>
+            <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--text); margin: 0 0 0.2rem 0;">Consultation Hub
+            </h2>
+            <p style="color: var(--text-secondary); font-size: 0.85rem; margin: 0;">
+              <%= appointments.length %> overall registration<%= appointments.length===1 ? '' : 's' %>
+            </p>
+          </div>
+
+          <div
+            style="display: flex; gap: 0.4rem; background: rgba(0,0,0,0.02); padding: 0.25rem; border-radius: 8px; border: 1px solid var(--border);">
+            <button class="sub-filter-btn active" onclick="filterConsultations('all')"
+              style="padding: 0.4rem 1rem; font-size: 0.8rem; border: none; border-radius: 6px; background: white; color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,0.05); cursor: pointer; font-weight: 500;">All</button>
+            <button class="sub-filter-btn" onclick="filterConsultations('pending')"
+              style="padding: 0.4rem 1rem; font-size: 0.8rem; border: none; border-radius: 6px; background: transparent; color: var(--text-secondary); cursor: pointer; font-weight: 500;">Pending
+              (<%= pendingApps.length %>)</button>
+            <button class="sub-filter-btn" onclick="filterConsultations('active')"
+              style="padding: 0.4rem 1rem; font-size: 0.8rem; border: none; border-radius: 6px; background: transparent; color: var(--text-secondary); cursor: pointer; font-weight: 500;">Upcoming</button>
+          </div>
+        </div>
+
+        <% if (appointments.length) { %>
+          <div
+            style="overflow-x: auto; background: var(--bg); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 4px 12px -2px rgba(0,0,0,0.03);">
+            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.88rem;">
+              <thead>
+                <tr style="border-bottom: 1px solid var(--border); background: rgba(0,0,0,0.015);">
+                  <th style="padding: 1rem 1.15rem; font-weight: 600; color: var(--text-secondary); width: 25%;">
+                    Patient Identity</th>
+                  <th style="padding: 1rem 1.15rem; font-weight: 600; color: var(--text-secondary); width: 20%;">
+                    Schedule Window</th>
+                  <th style="padding: 1rem 1.15rem; font-weight: 600; color: var(--text-secondary); width: 20%;">
+                    Modality / Service</th>
+                  <th style="padding: 1rem 1.15rem; font-weight: 600; color: var(--text-secondary); width: 15%;">State
+                    Status</th>
+                  <th
+                    style="padding: 1rem 1.15rem; font-weight: 600; color: var(--text-secondary); text-align: right; width: 20%;">
+                    Administrative Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% appointments.forEach(app=> { %>
+                  <% let isAnon=app.patientId?.isAnonymous ?? app.isAnonymous ?? true; let patName=isAnon
+                    ? 'Anonymous Patient' : (app.patientId?.name || app.patientName || 'Unknown Patient' ); let
+                    displayDate='N/A' ; let displayTime=app.appointmentSlot?.time || app.time || 'N/A' ; try { let
+                    rawDate=app.appointmentSlot?.date || app.date; if (rawDate) displayDate=new
+                    Date(rawDate).toISOString().split('T')[0]; } catch (e) {
+                    displayDate=String(app.appointmentSlot?.date || app.date); } let currentStatus=(app.status
+                    || 'Pending' ).toLowerCase(); %>
+                    <tr class="consultation-row" data-status="<%= currentStatus %>"
+                      style="border-bottom: 1px solid var(--border); transition: background 0.2s;">
+                      <td style="padding: 1rem 1.15rem;">
+                        <div style="font-weight: 600; color: var(--text); font-size: 0.92rem; display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;">
+                          <%= patName %>
+                          <% if (app.patientId && app.patientId.primaryDoctorId && app.patientId.primaryDoctorId.toString() === doctor._id.toString()) { %>
+                            <span style="background: rgba(13, 148, 136, 0.1); color: var(--primary); padding: 0.1rem 0.35rem; border-radius: 4px; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em;">Primary</span>
+                          <% } %>
+                        </div>
+                        <% if (isAnon) { %>
+                          <span
+                            style="display: inline-flex; align-items: center; margin-top: 0.25rem; padding: 0.15rem 0.4rem; font-size: 0.68rem; font-weight: 500; color: #64748b; background: #f1f5f9; border-radius: 4px;">Protected
+                            Identity</span>
+                          <% } %>
+                      </td>
+                      <td style="padding: 1rem 1.15rem;">
+                        <div style="font-weight: 500; color: var(--text);">
+                          <%= displayDate %>
+                        </div>
+                        <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.15rem;">
+                          <%= displayTime %>
+                        </div>
+                      </td>
+                      <td style="padding: 1rem 1.15rem;">
+                        <div style="color: var(--text); font-weight: 500;">
+                          <%= app.consultationType || app.serviceType || 'General Checkup' %>
+                        </div>
+                        <div
+                          style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.15rem; display: flex; align-items: center; gap: 0.35rem;">
+                          <span
+                            style="width: 6px; height: 6px; border-radius: 50%; background: <%= (app.consultationMode || '').toLowerCase().includes('video') ? '#2563eb' : '#db2777' %>;"></span>
+                          <%= (app.consultationMode || 'Video' ).replace(' Consultation', '' ) %>
+                        </div>
+                      </td>
+                      <td style="padding: 1rem 1.15rem;">
+                        <% let badgeColor='#475569' ; let badgeBg='#f8fafc' ; if (['confirmed', 'upcoming'
+                          ].includes(currentStatus)) { badgeColor='#16a34a' ; badgeBg='#f0fdf4' ; } else if
+                          (currentStatus==='completed' ) { badgeColor='#2563eb' ; badgeBg='#eff6ff' ; } else if
+                          (currentStatus==='cancelled' ) { badgeColor='#dc2626' ; badgeBg='#fef2f2' ; } %>
+                          <span
+                            style="display: inline-flex; padding: 0.25rem 0.65rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; color: <%= badgeColor %>; background: <%= badgeBg %>; text-transform: capitalize;">
+                            <%= currentStatus %>
+                          </span>
+                      </td>
+                      <td style="padding: 1rem 1.15rem; text-align: right;">
+                        <div style="display: flex; justify-content: flex-end; gap: 0.5rem; align-items: center;">
+                          <% if (currentStatus==='pending' ) { %>
+                            <form action="/appointments/<%= app._id %>/status" method="POST" style="margin: 0;">
+                              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                              <input type="hidden" name="status" value="Confirmed">
+                              <button type="submit"
+                                style="padding: 0.45rem 1rem; font-size: 0.8rem; font-weight: 600; background: #0d9488; color: white; border: none; border-radius: 6px; cursor: pointer;">Accept</button>
+                            </form>
+                            <% } else if (currentStatus==='confirmed' || currentStatus==='upcoming' ) { %>
+                              <a href="javascript:void(0)" onclick="showToast('Connection Hub', 'Establishing secure end-to-end encrypted link with <%= patName %>...')"
+                                style="padding: 0.45rem 1rem; font-size: 0.8rem; font-weight: 600; background: #2563eb; color: white; border: none; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 0.35rem; transition: background 0.2s;"
+                                onmouseover="this.style.background='#1d4ed8';" onmouseout="this.style.background='#2563eb';">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14v-4z"/><rect x="3" y="6" width="12" height="12" rx="2" ry="2"/></svg>
+                                Join Call
+                              </a>
+                              <form action="/appointments/<%= app._id %>/status" method="POST" style="margin: 0;">
+                                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                <input type="hidden" name="status" value="Completed">
+                                <button type="submit"
+                                  style="padding: 0.45rem 1rem; font-size: 0.8rem; font-weight: 600; background: #e2e8f0; color: #334155; border: none; border-radius: 6px; cursor: pointer;" title="Mark as Completed">Fulfill</button>
+                              </form>
+                              <% } %>
+                                <a href="/appointments/<%= app._id %>"
+                                  style="padding: 0.4rem 0.85rem; font-size: 0.8rem; font-weight: 500; border: 1px solid var(--border); color: var(--text-secondary); background: white; border-radius: 6px; text-decoration: none;">Details</a>
+                        </div>
+                      </td>
+                    </tr>
+                    <% }) %>
+              </tbody>
+            </table>
+          </div>
+          <% } else { %>
+            <div class="card-premium"
+              style="text-align: center; padding: 4rem 1.5rem; background: var(--bg); border: 1px dashed var(--border); border-radius: 12px;">
+              <div
+                style="width: 48px; height: 48px; background: rgba(13, 148, 136, 0.05); color: #0d9488; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 1.25rem; margin-bottom: 1.25rem;">
+                📅</div>
+              <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--text); margin: 0 0 0.5rem 0;">No Appointments
+                Slotted</h3>
+              <p
+                style="color: var(--text-secondary); max-width: 450px; margin: 0 auto; font-size: 0.88rem; line-height: 1.5;">
+                Incoming patient bookings and clinical pipeline requests will be systematically cataloged here.</p>
+            </div>
+            <% } %>
+    </section>
+
+    <!-- SECTION 2: Availability Setup (Ultra-Clean Modern Layout) -->
+    <section id="availability" class="dashboard-panel" role="tabpanel" hidden>
+      <div class="availability-layout" style="display: flex; gap: 1.75rem; flex-wrap: wrap; align-items: flex-start;">
+
+        <!-- Left Column: Unified Slot Publisher Card -->
+        <div class="card-premium"
+          style="flex: 1 1 340px; max-width: 420px; background: #ffffff; border: 1px solid #eaecf0; padding: 1.75rem; border-radius: 16px; box-shadow: 0 1px 3px rgba(16, 24, 40, 0.05); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+          
+          <div style="margin-bottom: 1.25rem;">
+            <h2 style="font-size: 1.15rem; font-weight: 600; color: #222222; margin: 0 0 0.25rem 0; letter-spacing: -0.01em; display: flex; align-items: center; gap: 0.4rem;"><span>🩺</span> Publish Availability</h2>
+            <p style="color: #6b7280; font-size: 0.85rem; margin: 0; line-height: 1.45; font-weight: 400;">Configure single or bulk time slots for patient booking.</p>
+          </div>
+
+          <!-- Segmented Tab Switcher (Single vs Bulk) -->
+          <div style="display: flex; background: #f3f4f6; padding: 0.25rem; border-radius: 20px; margin-bottom: 1.25rem;">
+            <button id="slot-mode-single-btn" type="button" onclick="switchSlotMode('single')" style="flex: 1; padding: 0.4rem; font-size: 0.78rem; font-weight: 600; border: none; border-radius: 16px; cursor: pointer; background: #ffffff; color: #222222; box-shadow: 0 1px 2px rgba(0,0,0,0.06); transition: all 0.15s;">
+              Single Slot
+            </button>
+            <button id="slot-mode-bulk-btn" type="button" onclick="switchSlotMode('bulk')" style="flex: 1; padding: 0.4rem; font-size: 0.78rem; font-weight: 500; border: none; border-radius: 16px; cursor: pointer; background: transparent; color: #4b5563; transition: all 0.15s;">
+              Bulk Generator
+            </button>
+          </div>
+          
+          <!-- Single Slot Form -->
+          <form id="single-slot-form" action="/doctor/slot/add" method="POST" style="display: flex; flex-direction: column; gap: 1rem;">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+            <div style="display: flex; flex-direction: column; gap: 0.35rem;">
+              <label for="date" style="font-size: 0.72rem; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.04em;">Consultation Date</label>
+              <input type="date" name="date" id="date" class="form-control"
+                style="width: 100%; padding: 0.6rem 0.85rem; border-radius: 8px; border: 1px solid #d1d5db; font-size: 0.85rem; box-sizing: border-box; background: #ffffff; color: #222222; outline: none; font-weight: 400;"
+                required min="<%= new Date().toISOString().split('T')[0] %>">
+            </div>
+
+            <div style="display: flex; gap: 0.75rem;">
+              <div style="flex: 1; display: flex; flex-direction: column; gap: 0.35rem;">
+                <label for="startTime" style="font-size: 0.72rem; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.04em;">Start Time</label>
+                <input type="time" name="startTime" id="startTime" class="form-control"
+                  style="width: 100%; padding: 0.6rem 0.85rem; border-radius: 8px; border: 1px solid #d1d5db; font-size: 0.85rem; box-sizing: border-box; background: #ffffff; color: #222222; outline: none; font-weight: 400;"
+                  required>
+              </div>
+              <div style="flex: 1; display: flex; flex-direction: column; gap: 0.35rem;">
+                <label for="endTime" style="font-size: 0.72rem; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.04em;">End Time</label>
+                <input type="time" name="endTime" id="endTime" class="form-control"
+                  style="width: 100%; padding: 0.6rem 0.85rem; border-radius: 8px; border: 1px solid #d1d5db; font-size: 0.85rem; box-sizing: border-box; background: #ffffff; color: #222222; outline: none; font-weight: 400;"
+                  required>
+              </div>
+            </div>
+
+            <button type="submit"
+              style="padding: 0.7rem; font-weight: 600; font-size: 0.85rem; background: #222222; color: #ffffff; border: none; border-radius: 8px; cursor: pointer; margin-top: 0.25rem; transition: background 0.15s;"
+              onmouseover="this.style.background='#000000';" onmouseout="this.style.background='#222222';">
+              Publish Slot
+            </button>
+          </form>
+
+          <!-- Bulk & Recurring Slot Generator Form (Initially Hidden) -->
+          <form id="bulk-slot-form" action="/doctor/slots/bulk" method="POST" style="display: none; flex-direction: column; gap: 1rem;">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+            <div style="display: flex; gap: 0.75rem;">
+              <div style="flex: 1; display: flex; flex-direction: column; gap: 0.35rem;">
+                <label for="bulk-date" style="font-size: 0.72rem; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.04em;">Start Date</label>
+                <input type="date" name="date" id="bulk-date" class="form-control" style="width: 100%; padding: 0.6rem 0.85rem; border-radius: 8px; border: 1px solid #d1d5db; font-size: 0.85rem; background: #ffffff; color: #222222;" required min="<%= new Date().toISOString().split('T')[0] %>">
+              </div>
+              <div style="flex: 1; display: flex; flex-direction: column; gap: 0.35rem;">
+                <label for="bulk-weeks" style="font-size: 0.72rem; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.04em;">Repeat Horizon</label>
+                <select name="repeatWeeks" id="bulk-weeks" class="form-control" style="width: 100%; padding: 0.6rem 0.85rem; border-radius: 8px; border: 1px solid #d1d5db; font-size: 0.85rem; background: #ffffff; color: #222222;">
+                  <option value="1" selected>Single Day Only</option>
+                  <option value="2">2 Weeks Horizon</option>
+                  <option value="4">4 Weeks Horizon</option>
+                  <option value="8">8 Weeks Horizon</option>
+                </select>
+              </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 0.35rem;">
+              <label style="font-size: 0.72rem; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.04em;">Recurring Days (Optional)</label>
+              <div style="display: flex; gap: 0.35rem; flex-wrap: wrap;">
+                <% const days = [{n: 'M', v: 1}, {n: 'T', v: 2}, {n: 'W', v: 3}, {n: 'T', v: 4}, {n: 'F', v: 5}, {n: 'S', v: 6}, {n: 'S', v: 0}]; %>
+                <% days.forEach(d => { %>
+                  <label style="display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer; background: #ffffff; color: #374151;">
+                    <input type="checkbox" name="daysOfWeek" value="<%= d.v %>" style="display: none;" onchange="this.parentElement.style.background = this.checked ? '#222222' : '#ffffff'; this.parentElement.style.color = this.checked ? '#ffffff' : '#374151'; this.parentElement.style.borderColor = this.checked ? '#222222' : '#d1d5db';">
+                    <%= d.n %>
+                  </label>
+                <% }); %>
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 0.75rem;">
+              <div style="flex: 1; display: flex; flex-direction: column; gap: 0.35rem;">
+                <label for="bulk-start" style="font-size: 0.72rem; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.04em;">Start Hour</label>
+                <input type="time" name="startTime" id="bulk-start" class="form-control" style="width: 100%; padding: 0.6rem 0.85rem; border-radius: 8px; border: 1px solid #d1d5db; font-size: 0.85rem; background: #ffffff; color: #222222;" required value="09:00">
+              </div>
+              <div style="flex: 1; display: flex; flex-direction: column; gap: 0.35rem;">
+                <label for="bulk-end" style="font-size: 0.72rem; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.04em;">End Hour</label>
+                <input type="time" name="endTime" id="bulk-end" class="form-control" style="width: 100%; padding: 0.6rem 0.85rem; border-radius: 8px; border: 1px solid #d1d5db; font-size: 0.85rem; background: #ffffff; color: #222222;" required value="17:00">
+              </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 0.35rem;">
+              <label for="bulk-duration" style="font-size: 0.72rem; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.04em;">Interval Duration</label>
+              <select name="durationMinutes" id="bulk-duration" class="form-control" style="width: 100%; padding: 0.6rem 0.85rem; border-radius: 8px; border: 1px solid #d1d5db; font-size: 0.85rem; background: #ffffff; color: #222222;">
+                <option value="15">15 Minutes</option>
+                <option value="30" selected>30 Minutes (Standard)</option>
+                <option value="45">45 Minutes</option>
+                <option value="60">60 Minutes</option>
+              </select>
+            </div>
+
+            <button type="submit" style="padding: 0.7rem; font-size: 0.85rem; font-weight: 600; background: #222222; color: #ffffff; border: none; border-radius: 8px; cursor: pointer; margin-top: 0.25rem; transition: background 0.15s;" onmouseover="this.style.background='#000000';" onmouseout="this.style.background='#222222';">
+              Generate Batch Schedule
+            </button>
+          </form>
+        </div>
+
+        <script>
+          function switchSlotMode(mode) {
+            const singleBtn = document.getElementById('slot-mode-single-btn');
+            const bulkBtn = document.getElementById('slot-mode-bulk-btn');
+            const singleForm = document.getElementById('single-slot-form');
+            const bulkForm = document.getElementById('bulk-slot-form');
+
+            if (mode === 'single') {
+              singleBtn.style.background = 'white';
+              singleBtn.style.color = 'var(--text)';
+              singleBtn.style.boxShadow = '0 2px 5px rgba(0,0,0,0.04)';
+              bulkBtn.style.background = 'transparent';
+              bulkBtn.style.color = 'var(--text-secondary)';
+              bulkBtn.style.boxShadow = 'none';
+              singleForm.style.display = 'flex';
+              bulkForm.style.display = 'none';
+            } else {
+              bulkBtn.style.background = 'white';
+              bulkBtn.style.color = 'var(--text)';
+              bulkBtn.style.boxShadow = '0 2px 5px rgba(0,0,0,0.04)';
+              singleBtn.style.background = 'transparent';
+              singleBtn.style.color = 'var(--text-secondary)';
+              singleBtn.style.boxShadow = 'none';
+              bulkForm.style.display = 'flex';
+              singleForm.style.display = 'none';
+            }
+          }
+        </script>
+
+        <!-- Right Column: Formal Airbnb-Style Minimalist Tabular Calendar -->
+        <div class="card-premium"
+          style="flex: 2 1 500px; background: #ffffff; border: 1px solid #eaecf0; border-radius: 16px; padding: 1.75rem; box-shadow: 0 1px 3px rgba(16, 24, 40, 0.05); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+          
+          <!-- Header -->
+          <div style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; border-bottom: 1px solid #eaecf0; padding-bottom: 1rem;">
+            <div>
+              <h2 style="font-size: 1.15rem; font-weight: 600; color: #222222; margin: 0 0 0.25rem 0; letter-spacing: -0.01em;">
+                Schedule & Availability Registry
+              </h2>
+              <p style="color: #6b7280; font-size: 0.85rem; margin: 0; font-weight: 400;">
+                <%= doctor.availability.length %> active consultation slot<%= doctor.availability.length===1 ? '' : 's' %> registered.
+              </p>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+              <% if (doctor.availability.length > 0) { %>
+                <form action="/doctor/slots/clear-expired" method="POST" style="margin: 0;" onsubmit="return confirm('Clear all past unbooked slots?');">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                  <button type="submit" style="background: #ffffff; color: #374151; border: 1px solid #d1d5db; font-size: 0.78rem; font-weight: 500; padding: 0.4rem 0.85rem; border-radius: 8px; cursor: pointer; transition: all 0.15s;" onmouseover="this.style.borderColor='#9ca3af'; this.style.background='#f9fafb';" onmouseout="this.style.borderColor='#d1d5db'; this.style.background='#ffffff';">
+                    Clear Past Slots
+                  </button>
+                </form>
+              <% } %>
+            </div>
+          </div>
+
+          <!-- Calendar Filter Bar (Airbnb Minimalist Pill Switcher) -->
+          <% if (doctor.availability.length) { %>
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1.25rem;">
+              <div style="display: flex; gap: 0.5rem; background: #f3f4f6; padding: 0.25rem; border-radius: 20px;">
+                <button type="button" onclick="filterCalendarTable('all')" id="cal-table-filter-all" class="cal-table-filter-btn" style="padding: 0.35rem 0.9rem; font-size: 0.78rem; font-weight: 600; border: none; border-radius: 16px; cursor: pointer; background: #ffffff; color: #222222; box-shadow: 0 1px 2px rgba(0,0,0,0.06); transition: all 0.15s;">
+                  All (<%= doctor.availability.length %>)
+                </button>
+                <button type="button" onclick="filterCalendarTable('open')" id="cal-table-filter-open" class="cal-table-filter-btn" style="padding: 0.35rem 0.9rem; font-size: 0.78rem; font-weight: 500; border: none; border-radius: 16px; cursor: pointer; background: transparent; color: #4b5563; transition: all 0.15s;">
+                  Available (<%= doctor.availability.filter(s => !s.isBooked).length %>)
+                </button>
+                <button type="button" onclick="filterCalendarTable('booked')" id="cal-table-filter-booked" class="cal-table-filter-btn" style="padding: 0.35rem 0.9rem; font-size: 0.78rem; font-weight: 500; border: none; border-radius: 16px; cursor: pointer; background: transparent; color: #4b5563; transition: all 0.15s;">
+                  Reserved (<%= doctor.availability.filter(s => s.isBooked).length %>)
+                </button>
+              </div>
+
+              <input type="text" id="calendar-table-search" placeholder="Search date or time..." onkeyup="searchCalendarTable()" style="padding: 0.4rem 0.9rem; font-size: 0.8rem; border: 1px solid #d1d5db; border-radius: 20px; outline: none; background: #ffffff; color: #222222; width: 170px; font-weight: 400;" onfocus="this.style.borderColor='#222222';" onblur="this.style.borderColor='#d1d5db';">
+            </div>
+
+            <!-- Tabular Format View -->
+            <div style="overflow-x: auto; max-height: 520px; border: 1px solid #eaecf0; border-radius: 12px; background: #ffffff;">
+              <table id="calendar-slots-table" style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.85rem; color: #222222;">
+                <thead>
+                  <tr style="border-bottom: 1px solid #eaecf0; background: #fafafa; font-size: 0.72rem; text-transform: uppercase; color: #6b7280; font-weight: 600; letter-spacing: 0.04em; position: sticky; top: 0; z-index: 10;">
+                    <th style="padding: 0.75rem 1rem; width: 35%;">Date</th>
+                    <th style="padding: 0.75rem 1rem; width: 30%;">Time Window</th>
+                    <th style="padding: 0.75rem 1rem; width: 20%;">Status</th>
+                    <th style="padding: 0.75rem 1rem; text-align: right; width: 15%;">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% 
+                    const sortedSlots = doctor.availability.slice().sort((a, b) => new Date(a.date) - new Date(b.date) || a.time.localeCompare(b.time));
+                    sortedSlots.forEach(slot => { 
+                      let formattedDate = 'N/A';
+                      try {
+                        const d = new Date(slot.date);
+                        formattedDate = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+                      } catch(e) { formattedDate = String(slot.date); }
+                  %>
+                    <tr class="calendar-slot-row <%= slot.isBooked ? 'row-booked' : 'row-open' %>" style="border-bottom: 1px solid #f2f4f7; transition: background 0.12s;" onmouseover="this.style.background='#fafafa';" onmouseout="this.style.background='#ffffff';">
+                      <td style="padding: 0.75rem 1rem; font-weight: 600; color: #111827;">
+                        <%= formattedDate %>
+                      </td>
+                      <td style="padding: 0.75rem 1rem; color: #374151; font-weight: 500;">
+                        <%= slot.time %>
+                      </td>
+                      <td style="padding: 0.75rem 1rem;">
+                        <% if (slot.isBooked) { %>
+                          <span style="display: inline-flex; align-items: center; gap: 0.35rem; background: #f3f4f6; color: #374151; border: 1px solid #e5e7eb; padding: 0.15rem 0.55rem; border-radius: 12px; font-size: 0.72rem; font-weight: 500;">
+                            <span style="width: 5px; height: 5px; border-radius: 50%; background: #6b7280;"></span> Reserved
+                          </span>
+                        <% } else { %>
+                          <span style="display: inline-flex; align-items: center; gap: 0.35rem; background: #f0fdf4; color: #15803d; border: 1px solid #dcfce7; padding: 0.15rem 0.55rem; border-radius: 12px; font-size: 0.72rem; font-weight: 500;">
+                            <span style="width: 5px; height: 5px; border-radius: 50%; background: #16a34a;"></span> Available
+                          </span>
+                        <% } %>
+                      </td>
+                      <td style="padding: 0.75rem 1rem; text-align: right;">
+                        <% if (!slot.isBooked) { %>
+                          <form action="/doctor/slot/delete" method="POST" style="margin: 0; display: inline-block;">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                            <input type="hidden" name="slotId" value="<%= slot._id %>">
+                            <button type="submit" style="padding: 0.25rem 0.6rem; font-size: 0.75rem; color: #dc2626; border: 1px solid #fecaca; background: #ffffff; border-radius: 6px; font-weight: 500; cursor: pointer; transition: all 0.15s;" onmouseover="this.style.background='#fef2f2';" onmouseout="this.style.background='#ffffff';">
+                              Delete
+                            </button>
+                          </form>
+                        <% } else { %>
+                          <span style="font-size: 0.75rem; color: #9ca3af; font-weight: 400;">—</span>
+                        <% } %>
+                      </td>
+                    </tr>
+                  <% }); %>
+                </tbody>
+              </table>
+            </div>
+
+            <script>
+              function filterCalendarTable(type) {
+                document.querySelectorAll('.cal-table-filter-btn').forEach(b => {
+                  b.style.background = 'transparent';
+                  b.style.color = '#4b5563';
+                  b.style.boxShadow = 'none';
+                  b.style.fontWeight = '500';
+                });
+                const activeBtn = document.getElementById('cal-table-filter-' + type);
+                if (activeBtn) {
+                  activeBtn.style.background = '#ffffff';
+                  activeBtn.style.color = '#222222';
+                  activeBtn.style.boxShadow = '0 1px 2px rgba(0,0,0,0.06)';
+                  activeBtn.style.fontWeight = '600';
+                }
+
+                const rows = document.querySelectorAll('.calendar-slot-row');
+                rows.forEach(row => {
+                  if (type === 'all') {
+                    row.style.display = '';
+                  } else if (type === 'open') {
+                    row.style.display = row.classList.contains('row-open') ? '' : 'none';
+                  } else if (type === 'booked') {
+                    row.style.display = row.classList.contains('row-booked') ? '' : 'none';
+                  }
+                });
+              }
+
+              function searchCalendarTable() {
+                const query = document.getElementById('calendar-table-search').value.toLowerCase();
+                const rows = document.querySelectorAll('.calendar-slot-row');
+                rows.forEach(row => {
+                  const text = row.textContent.toLowerCase();
+                  row.style.display = text.includes(query) ? '' : 'none';
+                });
+              }
+            </script>
+          <% } else { %>
+            <div
+              style="text-align: center; padding: 4rem 1.5rem; background: #ffffff; border: 1px dashed #d1d5db; border-radius: 12px;">
+              <div style="width: 44px; height: 44px; background: #f3f4f6; color: #374151; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 0.85rem;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              </div>
+              <h3 style="font-size: 1.05rem; font-weight: 600; color: #111827; margin: 0 0 0.35rem 0;">No Active Slots Registered</h3>
+              <p style="color: #6b7280; max-width: 340px; margin: 0 auto; font-size: 0.85rem; line-height: 1.5;">Use the schedule form on the left to add open time slots for patient booking.</p>
+            </div>
+          <% } %>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    const tabs = document.querySelectorAll('.navigation-tab');
+    const panels = document.querySelectorAll('.dashboard-panel');
+
+    tabs.forEach(tab => tab.addEventListener('click', () => {
+      tabs.forEach(item => {
+        const isActive = item === tab;
+        item.classList.toggle('active', isActive);
+        item.style.borderBottom = isActive ? '2px solid var(--primary)' : '2px solid transparent';
+        item.style.color = isActive ? 'var(--text)' : 'var(--text-secondary)';
+        item.style.fontWeight = isActive ? '600' : '500';
+      });
+
+      panels.forEach(panel => {
+        const isSelected = panel.id === tab.dataset.panel;
+        panel.hidden = !isSelected;
+        panel.classList.toggle('active', isSelected);
+      });
+    }));
+
+    function filterConsultations(type) {
+      const filters = document.querySelectorAll('.sub-filter-btn');
+      filters.forEach(btn => {
+        const isActive = btn.getAttribute('onclick').includes(type);
+        btn.style.background = isActive ? 'white' : 'transparent';
+        btn.style.color = isActive ? 'var(--text)' : 'var(--text-secondary)';
+        btn.style.boxShadow = isActive ? '0 1px 3px rgba(0,0,0,0.05)' : 'none';
+      });
+
+      const rows = document.querySelectorAll('.consultation-row');
+      rows.forEach(row => {
+        const status = row.dataset.status;
+        if (type === 'all') {
+          row.style.display = 'table-row';
+        } else if (type === 'pending') {
+          row.style.display = (status === 'pending') ? 'table-row' : 'none';
+        } else if (type === 'active') {
+          row.style.display = ['confirmed', 'upcoming'].includes(status) ? 'table-row' : 'none';
+        }
+      });
+    }
+
+    // Initialize Chart.js
+    document.addEventListener('DOMContentLoaded', () => {
+      const ctx = document.getElementById('consultationChart');
+      if (ctx) {
+        // Extract appointments data from DOM elements (row statuses and dates)
+        const rows = document.querySelectorAll('.consultation-row');
+        const dateCounts = {};
+        const today = new Date();
+        today.setHours(0,0,0,0);
+        
+        // Setup next 7 days template
+        for (let i = 0; i < 7; i++) {
+          const d = new Date(today);
+          d.setDate(d.getDate() + i);
+          dateCounts[d.toISOString().split('T')[0]] = { pending: 0, upcoming: 0, completed: 0 };
+        }
+
+        // Aggregate existing appointments
+        rows.forEach(row => {
+          const status = row.dataset.status; // pending, confirmed/upcoming, completed
+          const dateText = row.querySelector('td:nth-child(2) div:first-child').innerText.trim();
+          
+          if (dateCounts[dateText]) {
+            if (status === 'pending') dateCounts[dateText].pending++;
+            else if (status === 'completed') dateCounts[dateText].completed++;
+            else dateCounts[dateText].upcoming++; // confirmed/upcoming
+          }
+        });
+
+        const labels = Object.keys(dateCounts).map(d => {
+          const dt = new Date(d);
+          return dt.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+        });
+        
+        const upcomingData = Object.values(dateCounts).map(d => d.upcoming + d.pending);
+        const completedData = Object.values(dateCounts).map(d => d.completed);
+
+        new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                label: 'Upcoming / Pending',
+                data: upcomingData,
+                backgroundColor: 'rgba(13, 148, 136, 0.8)',
+                borderRadius: 4,
+              },
+              {
+                label: 'Completed',
+                data: completedData,
+                backgroundColor: 'rgba(37, 99, 235, 0.5)',
+                borderRadius: 4,
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: { beginAtZero: true, ticks: { precision: 0 } },
+              x: { grid: { display: false } }
+            },
+            plugins: {
+              legend: { position: 'top', align: 'end', labels: { boxWidth: 12, usePointStyle: true } }
+            }
+          }
+        });
+      }
+    });
+
+    function showToast(title, msg) {
+      let container = document.querySelector('.toast-container');
+      if (!container) {
+        container = document.createElement('div');
+        container.className = 'toast-container';
+        document.body.appendChild(container);
+      }
+      if (!document.getElementById('toast-animation-styles')) {
+        const style = document.createElement('style');
+        style.id = 'toast-animation-styles';
+        style.innerHTML = `
+          @keyframes toastOut {
+            from { opacity: 1; transform: translateX(0); }
+            to   { opacity: 0; transform: translateX(20px); }
+          }
+        `;
+        document.head.appendChild(style);
+      }
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.innerHTML = `
+        <div class="toast-title">${title}</div>
+        <div class="toast-msg">${msg}</div>
+      `;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.animation = 'toastOut 0.3s ease forwards';
+        toast.addEventListener('animationend', () => toast.remove());
+      }, 3000);
+    }
+  </script>

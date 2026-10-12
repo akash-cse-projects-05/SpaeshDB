@@ -1,0 +1,1070 @@
+<%- include('../partials/header') %>
+
+  <style>
+    main {
+      max-width: 1200px !important;
+      padding: 1.5rem 1.75rem !important;
+    }
+  </style>
+
+  <div style="max-width: 100%; margin: 0rem auto; width: 100%;">
+
+    <!-- Header Section -->
+    <div class="dashboard-header patient-dashboard-header"
+      style="display: flex; justify-content: space-between; align-items: center; flex-wrap: nowrap; gap: 2rem; margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border);">
+        <div style="flex: 1 1 auto; min-width: 300px;">
+          <h1 class="dashboard-title"
+            style="font-size: 2.0rem; font-weight: 700; color: var(--text); letter-spacing: -0.03em; margin: 0 0 0.35rem 0;">
+            <%= currentUser.isAnonymous ? 'Anonymous Session' : `Welcome, ${currentUser.name}` %>
+          </h1>
+          <p class="dashboard-welcome"
+            style="color: var(--text-secondary); font-size: 0.95rem; margin: 0; max-width: 600px; line-height: 1.4;">
+            <%= currentUser.isAnonymous
+              ? 'Your medical inquiries are currently protected under an anonymous veil. No identity footprint is stored.'
+              : 'Manage your clinical files, track consultation history, and provision new telehealth appointments.' %>
+          </p>
+        </div>
+    </div>
+
+    <!-- Primary Section Navigation -->
+    <div class="navigation-tabs" role="tablist" aria-label="Patient dashboard sections"
+      style="margin-bottom: 2rem; display: flex; gap: 2rem; border-bottom: 1px solid var(--border); background: transparent; padding: 0; border-radius: 0;">
+      <button class="navigation-tab active" type="button" data-panel="appointments-panel"
+        style="padding: 0.75rem 0.5rem; font-weight: 600; font-size: 1rem; border: none; background: transparent; border-bottom: 2px solid var(--primary); color: var(--text); cursor: pointer; border-radius: 0; flex: none;">
+        My Consultations
+      </button>
+      <button class="navigation-tab" type="button" data-panel="book-panel"
+        style="padding: 0.75rem 0.5rem; font-weight: 500; font-size: 1rem; border: none; background: transparent; border-bottom: 2px solid transparent; color: var(--text-secondary); cursor: pointer; border-radius: 0; flex: none;">
+        Book Consultation
+      </button>
+      <button class="navigation-tab" type="button" data-panel="medical-panel"
+        style="padding: 0.75rem 0.5rem; font-weight: 500; font-size: 1rem; border: none; background: transparent; border-bottom: 2px solid transparent; color: var(--text-secondary); cursor: pointer; border-radius: 0; flex: none;">
+        Medical Identity
+      </button>
+    </div>
+
+    <!-- PANELS -->
+
+    <!-- Panel 1: Appointments -->
+    <div id="appointments-panel" class="dashboard-panel active">
+      <div style="margin-bottom: 1.5rem;">
+        <h2 style="font-size: 1.35rem; font-weight: 700; color: var(--text); margin-bottom: 0.25rem;">Appointments &
+          History</h2>
+        <p style="color: var(--text-secondary); font-size: 0.9rem;">You have <%= appointments.length %> appointment<%=
+              appointments.length===1 ? '' : 's' %> registered</p>
+      </div>
+
+      <!-- PEP 72-Hour Emergency Exposure Countdown -->
+      <% if (currentUser.pepExposureDate) { %>
+        <%
+          const exposureTime = new Date(currentUser.pepExposureDate);
+          const endTime = new Date(exposureTime.getTime() + 72 * 60 * 60 * 1000);
+          const pepActive = endTime > new Date();
+        %>
+        <% if (pepActive) { %>
+          <div class="card-premium" style="background: rgba(239, 68, 68, 0.05); border: 2px solid #ef4444; border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+            <div style="flex: 1; min-width: 280px;">
+              <h3 style="color: #ef4444; font-size: 1.15rem; font-weight: 800; margin: 0 0 0.4rem 0; display: flex; align-items: center; gap: 0.5rem;">
+                🚨 Emergency PEP Window Active
+              </h3>
+              <p style="color: var(--text-secondary); font-size: 0.85rem; margin: 0; line-height: 1.45;">
+                Post-Exposure Prophylaxis (PEP) must be started within <strong>72 hours</strong> of potential exposure to prevent infection. 
+                Your registered exposure event occurred on <%= exposureTime.toLocaleString() %>.
+              </p>
+            </div>
+            <div style="text-align: right; min-width: 200px;">
+              <div id="pep-countdown-timer" data-end="<%= endTime.toISOString() %>" style="font-size: 1.75rem; font-weight: 800; color: #ef4444; font-family: monospace; letter-spacing: 1px;">
+                --:--:--
+              </div>
+              <div style="font-size: 0.7rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Time Remaining to Start PEP</div>
+              <button class="btn btn-primary" onclick="switchPanel('book-panel')" style="background: #ef4444; border-color: #ef4444; font-weight: 700; padding: 0.45rem 1.15rem; font-size: 0.8rem;">
+                ⚡ Fast Book PEP Now
+              </button>
+            </div>
+          </div>
+        <% } %>
+      <% } %>
+
+      <!-- PrEP Pill Tracker Card -->
+      <div class="card-premium" style="background: rgba(13, 148, 136, 0.03); border: 1px solid rgba(13, 148, 136, 0.2); border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+        <div style="display: flex; align-items: center; gap: 0.85rem; flex: 1; min-width: 250px;">
+          <div style="font-size: 1.75rem;">💊</div>
+          <div>
+            <h4 style="color: var(--text); font-weight: 700; margin: 0 0 0.2rem 0; font-size: 0.95rem;">PrEP Adherence Tracker & Pill Log</h4>
+            <p style="color: var(--text-secondary); font-size: 0.82rem; margin: 0;">
+              <% if (currentUser.prepTracking && currentUser.prepTracking.isActive) { %>
+                🔥 Current Adherence Streak: <strong><%= currentUser.prepTracking.currentStreak || 0 %> days</strong>. Keep it up!
+              <% } else { %>
+                Start tracking your daily PrEP compliance to ensure maximum protection.
+              <% } %>
+            </p>
+          </div>
+        </div>
+        <a href="/patient/prep-tracker" class="btn btn-primary" style="font-size: 0.8rem; padding: 0.45rem 1.15rem; font-weight: 700;">
+          <%= (currentUser.prepTracking && currentUser.prepTracking.isActive) ? 'Open Daily Tracker' : 'Activate Tracker' %>
+        </a>
+      </div>
+
+      <% if (appointments.length) { %>
+        <!-- Live Countdown Timer -->
+        <% 
+          let nextApp = null;
+          const now = new Date();
+          const upcomingApps = appointments.filter(a => {
+            if (a.status !== 'Confirmed' && a.status !== 'Upcoming') return false;
+            const dateStr = a.appointmentSlot?.date || a.date;
+            const timeStr = a.appointmentSlot?.time || a.time;
+            if (!dateStr || !timeStr) return false;
+            const dt = new Date(`${dateStr.toString().split('T')[0]}T${timeStr.split('-')[0].trim()}:00`);
+            return dt > now;
+          }).sort((a,b) => {
+            const d1 = new Date(`${(a.appointmentSlot?.date||a.date).toString().split('T')[0]}T${(a.appointmentSlot?.time||a.time).split('-')[0].trim()}:00`);
+            const d2 = new Date(`${(b.appointmentSlot?.date||b.date).toString().split('T')[0]}T${(b.appointmentSlot?.time||b.time).split('-')[0].trim()}:00`);
+            return d1 - d2;
+          });
+          if (upcomingApps.length > 0) nextApp = upcomingApps[0];
+        %>
+
+        <% if (nextApp) { %>
+          <div style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border-radius: 12px; padding: 1rem 1.5rem; margin-bottom: 1.5rem; color: white; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 10px 20px -5px rgba(15,23,42,0.2); flex-wrap: wrap; gap: 1rem;">
+            <div>
+              <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: rgba(255,255,255,0.7); font-weight: 600; margin-bottom: 0.25rem;">Next Upcoming Consultation</div>
+              <div style="font-size: 1.15rem; font-weight: 700;">Dr. <%= (nextApp.doctorName || (nextApp.doctorId && nextApp.doctorId.name) || 'Doctor').replace(/^Dr\.\s*/i, '') %> &mdash; <%= nextApp.consultationType || 'General Checkup' %></div>
+            </div>
+            <div style="text-align: right;">
+              <div id="countdown-timer" data-target="<%= new Date(`${(nextApp.appointmentSlot?.date||nextApp.date).toString().split('T')[0]}T${(nextApp.appointmentSlot?.time||nextApp.time).split('-')[0].trim()}:00`).toISOString() %>" style="font-size: 1.5rem; font-weight: 800; font-variant-numeric: tabular-nums; color: #34d399; letter-spacing: 1px;">
+                --:--:--
+              </div>
+              <div style="font-size: 0.7rem; color: rgba(255,255,255,0.6); font-weight: 500; margin-bottom: 0.35rem;">Hours : Minutes : Seconds</div>
+              <a href="/consultation/room" class="btn" style="background: rgba(52, 211, 153, 0.1); border: 1px solid #34d399; color: #34d399; padding: 0.25rem 1rem; font-size: 0.75rem; border-radius: 20px;">
+                Join Call
+              </a>
+            </div>
+          </div>
+        <% } %>
+
+        <div style="overflow-x: auto; background: var(--bg); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 4px 12px -2px rgba(0,0,0,0.03);">
+          <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.88rem;">
+            <thead>
+              <tr style="border-bottom: 1px solid var(--border); background: rgba(0,0,0,0.015);">
+                <th style="padding: 1rem 1.15rem; font-weight: 600; color: var(--text-secondary); width: 30%;">
+                  Medical Specialist</th>
+                <th style="padding: 1rem 1.15rem; font-weight: 600; color: var(--text-secondary); width: 22%;">
+                  Schedule Window</th>
+                <th style="padding: 1rem 1.15rem; font-weight: 600; color: var(--text-secondary); width: 23%;">
+                  Modality / Service</th>
+                <th style="padding: 1rem 1.15rem; font-weight: 600; color: var(--text-secondary); width: 12%;">State Status</th>
+                <th style="padding: 1rem 1.15rem; font-weight: 600; color: var(--text-secondary); text-align: right; width: 13%;">
+                  Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% appointments.forEach(app=> { %>
+                <% let docName=app.doctorName || 'N/A' ; let docSpecialization='Infectious Disease' ; if (app.doctorId) {
+                  docName=app.doctorId.name; docSpecialization=app.doctorId.specialization || docSpecialization; } let
+                  displayDate='N/A' ; let displayTime='N/A' ; if (app.appointmentSlot && app.appointmentSlot.date) { try {
+                  if (app.appointmentSlot.date instanceof Date) {
+                  displayDate=app.appointmentSlot.date.toISOString().split('T')[0]; } else { displayDate=new
+                  Date(app.appointmentSlot.date).toISOString().split('T')[0]; } } catch (e) {
+                  displayDate=app.appointmentSlot.date.toString(); } displayTime=app.appointmentSlot.time; } else if
+                  (app.date) { displayDate=app.date; displayTime=app.time; } %>
+                  <% let currentStatus=(app.status || 'Pending' ).toLowerCase(); %>
+                  <tr style="border-bottom: 1px solid var(--border); transition: background 0.2s;">
+                    <td style="padding: 1rem 1.15rem;">
+                      <div style="font-weight: 600; color: var(--text); font-size: 0.92rem;">
+                        <%= docName %>
+                      </div>
+                      <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.15rem;">
+                        <%= docSpecialization %>
+                      </div>
+                    </td>
+                    <td style="padding: 1rem 1.15rem;">
+                      <div style="font-weight: 500; color: var(--text);">
+                        <%= displayDate %>
+                      </div>
+                      <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.15rem;">
+                        <%= displayTime %>
+                      </div>
+                    </td>
+                    <td style="padding: 1rem 1.15rem;">
+                      <div style="color: var(--text); font-weight: 500;">
+                        <%= app.consultationType %>
+                      </div>
+                      <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.15rem; display: flex; align-items: center; gap: 0.35rem;">
+                        <span style="width: 6px; height: 6px; border-radius: 50%; background: <%= (app.consultationMode || '').toLowerCase().includes('video') ? '#2563eb' : '#db2777' %>;"></span>
+                        <%= (app.consultationMode || 'Video' ).replace(' Consultation', '' ) %>
+                      </div>
+                    </td>
+                    <td style="padding: 1rem 1.15rem;">
+                      <% let badgeColor='#475569' ; let badgeBg='#f8fafc' ; if (['confirmed', 'upcoming'
+                        ].includes(currentStatus)) { badgeColor='#16a34a' ; badgeBg='#f0fdf4' ; } else if
+                        (currentStatus==='completed' ) { badgeColor='#2563eb' ; badgeBg='#eff6ff' ; } else if
+                        (currentStatus==='cancelled' ) { badgeColor='#dc2626' ; badgeBg='#fef2f2' ; } %>
+                        <span style="display: inline-flex; padding: 0.25rem 0.65rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; color: <%= badgeColor %>; background: <%= badgeBg %>; text-transform: capitalize;">
+                          <%= app.status %>
+                        </span>
+                    </td>
+                    <td style="padding: 1rem 1.15rem; text-align: right;">
+                      <div style="display: flex; justify-content: flex-end; gap: 0.5rem; align-items: center;">
+                        <a href="/appointments/<%= app._id %>"
+                          style="padding: 0.4rem 0.85rem; font-size: 0.8rem; font-weight: 500; border: 1px solid var(--border); color: var(--text-secondary); background: white; border-radius: 6px; text-decoration: none;">
+                          Details
+                        </a>
+                        <% if (app.status==='Pending' || app.status==='Confirmed' ) { %>
+                          <form action="/appointments/<%= app._id %>/cancel" method="POST"
+                            onsubmit="return confirm('Cancel this appointment?');" style="margin: 0;">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                            <button type="submit" aria-label="Cancel Appointment"
+                              style="padding: 0.4rem 0.85rem; font-size: 0.8rem; font-weight: 600; background: #fef2f2; border: 1px solid rgba(239, 68, 68, 0.15); border-radius: 6px; color: #ef4444; cursor: pointer; transition: background 0.2s;"
+                              onmouseover="this.style.background='#fee2e2';" onmouseout="this.style.background='#fef2f2';">
+                              Cancel
+                            </button>
+                          </form>
+                        <% } %>
+                      </div>
+                    </td>
+                  </tr>
+                <% }) %>
+            </tbody>
+          </table>
+        </div>
+        <% } else { %>
+          <div class="card-premium"
+            style="text-align: center; padding: 3rem 1.5rem; background: rgba(255,255,255,0.02); border: 1px dashed var(--border);">
+            <div
+              style="width: 48px; height: 48px; background: rgba(13, 148, 136, 0.06); color: var(--primary); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 1.25rem; margin: 0 auto 1.25rem;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                <line x1="16" y1="2" x2="16" y2="6" />
+                <line x1="8" y1="2" x2="8" y2="6" />
+                <line x1="3" y1="10" x2="21" y2="10" />
+              </svg>
+            </div>
+            <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--text); margin-bottom: 0.5rem;">No appointments
+              booked yet</h3>
+            <p style="color: var(--text-secondary); max-width: 400px; margin: 0 auto 1.25rem; font-size: 0.88rem;">Choose
+              a verified specialist and a convenient slot time to start your telehealth care.</p>
+            <button class="btn btn-primary" onclick="switchPanel('book-panel')"
+              style="padding: 0.55rem 1.25rem; font-weight: 700; font-size: 0.85rem;">Book Consultation</button>
+          </div>
+          <% } %>
+    </div>
+
+    <!-- Panel 2: Embedded Booking Wizard -->
+    <div id="book-panel" class="dashboard-panel">
+      <div style="max-width: 780px; margin: 0 auto;">
+        <!-- Progress Bar -->
+        <div
+          style="display: flex; align-items: center; gap: 0; margin-bottom: 2rem; max-width: 500px; margin-left: auto; margin-right: auto;">
+          <div class="progress-step active" id="progress-1">
+            <div class="progress-dot">1</div>
+            <span>Service</span>
+          </div>
+          <div class="progress-line" id="progress-line-1"></div>
+          <div class="progress-step" id="progress-2">
+            <div class="progress-dot">2</div>
+            <span>Doctor</span>
+          </div>
+          <div class="progress-line" id="progress-line-2"></div>
+          <div class="progress-step" id="progress-3">
+            <div class="progress-dot">3</div>
+            <span>Slot</span>
+          </div>
+          <div class="progress-line" id="progress-line-3"></div>
+          <div class="progress-step" id="progress-4">
+            <div class="progress-dot">4</div>
+            <span>Confirm</span>
+          </div>
+        </div>
+
+        <!-- Wizard Card -->
+        <div class="card-premium" style="border-radius: 16px; padding: 1.75rem;">
+          <h3 id="step-subtitle"
+            style="font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 1.25rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700;">
+            Step 1 of 4 — Select Service</h3>
+          <form id="booking-wizard-form" action="/patient/book" method="POST">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+            <!-- Hidden Form Parameters -->
+            <input type="hidden" name="doctorId" id="hidden-doctor-id">
+            <input type="hidden" name="amount" id="hidden-amount" value="400">
+            <input type="hidden" name="date" id="hidden-date">
+            <input type="hidden" name="time" id="hidden-time">
+            <input type="hidden" name="contactMethod" value="Email">
+            <input type="hidden" name="contactValue" id="hidden-contact-value" value="<%= currentUser.email || '' %>">
+
+            <!-- ============================================ -->
+            <!-- STEP 1: Select Service                       -->
+            <!-- ============================================ -->
+            <div id="wizard-step-1" class="wizard-step">
+              <div style="margin-bottom: 1.5rem;">
+                <h2 style="font-size: 1.35rem; font-weight: 700; color: var(--text); margin-bottom: 0.25rem;">What do
+                  you need help with?</h2>
+                <p style="color: var(--text-secondary); font-size: 0.9rem;">Select the type of consultation you're
+                  looking for.</p>
+              </div>
+
+              <div style="display: flex; flex-direction: column; gap: 1rem;">
+                <div class="service-card" data-service="PEP" onclick="selectService('PEP')">
+                  <div style="display: flex; align-items: center; gap: 1rem; flex: 1;">
+                    <div class="service-icon" style="background: rgba(239, 68, 68, 0.06); color: #ef4444;">
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 style="font-size: 1.05rem; font-weight: 700; color: var(--text); margin-bottom: 0.2rem;">PEP
+                        Consultation</h3>
+                      <p style="color: var(--text-secondary); font-size: 0.85rem; margin: 0;">Post-Exposure Prophylaxis
+                        — Emergency treatment within 72 hours of potential HIV exposure.</p>
+                    </div>
+                  </div>
+                  <div class="service-check">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  </div>
+                </div>
+
+                <div class="service-card" data-service="PrEP" onclick="selectService('PrEP')">
+                  <div style="display: flex; align-items: center; gap: 1rem; flex: 1;">
+                    <div class="service-icon" style="background: rgba(59, 130, 246, 0.06); color: #3b82f6;">
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <path d="M18 20V10M12 20V4M6 20v-6" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 style="font-size: 1.05rem; font-weight: 700; color: var(--text); margin-bottom: 0.2rem;">PrEP
+                        Consultation</h3>
+                      <p style="color: var(--text-secondary); font-size: 0.85rem; margin: 0;">Pre-Exposure Prophylaxis —
+                        Daily prevention medication for individuals at higher risk.</p>
+                    </div>
+                  </div>
+                  <div class="service-check">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  </div>
+                </div>
+
+                <div class="service-card" data-service="General Counselling"
+                  onclick="selectService('General Counselling')">
+                  <div style="display: flex; align-items: center; gap: 1rem; flex: 1;">
+                    <div class="service-icon" style="background: rgba(13, 148, 136, 0.06); color: #0d9488;">
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 style="font-size: 1.05rem; font-weight: 700; color: var(--text); margin-bottom: 0.2rem;">
+                        General Counselling</h3>
+                      <p style="color: var(--text-secondary); font-size: 0.85rem; margin: 0;">Confidential guidance,
+                        mental health support, and expert care planning.</p>
+                    </div>
+                  </div>
+                  <div class="service-check">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+              <input type="hidden" name="consultationType" id="hidden-service-type">
+            </div>
+
+            <!-- ============================================ -->
+            <!-- STEP 2: Choose Your Doctor                   -->
+            <!-- ============================================ -->
+            <div id="wizard-step-2" class="wizard-step" style="display: none;">
+              <div style="margin-bottom: 1.5rem;">
+                <h2 style="font-size: 1.35rem; font-weight: 700; color: var(--text); margin-bottom: 0.25rem;">Choose
+                  Your Specialist</h2>
+                <p style="color: var(--text-secondary); font-size: 0.9rem;">Select a verified doctor for your <strong
+                    id="display-selected-service" style="color: var(--primary);"></strong> consultation.</p>
+              </div>
+
+              <!-- Gender Filter Bar -->
+              <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 0.5rem 1rem;">
+                <span style="font-size: 0.82rem; font-weight: 700; color: var(--text-secondary); display: flex; align-items: center; gap: 0.25rem;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display: inline;"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+                  Specialist Gender:
+                </span>
+                <div style="display: flex; gap: 0.35rem;">
+                  <button type="button" class="gender-btn" id="gender-btn-all" onclick="filterDoctorsByGender('all')" style="padding: 0.3rem 0.8rem; font-size: 0.78rem; font-weight: 700; border-radius: 6px; border: 1px solid var(--primary); background: var(--primary); color: white; cursor: pointer; transition: all 0.2s; width: auto;">
+                    All
+                  </button>
+                  <button type="button" class="gender-btn" id="gender-btn-female" onclick="filterDoctorsByGender('Female')" style="padding: 0.3rem 0.8rem; font-size: 0.78rem; font-weight: 700; border-radius: 6px; border: 1px solid var(--border); background: white; color: var(--text-secondary); cursor: pointer; transition: all 0.2s; width: auto;">
+                    Female 👩‍⚕️
+                  </button>
+                  <button type="button" class="gender-btn" id="gender-btn-male" onclick="filterDoctorsByGender('Male')" style="padding: 0.3rem 0.8rem; font-size: 0.78rem; font-weight: 700; border-radius: 6px; border: 1px solid var(--border); background: white; color: var(--text-secondary); cursor: pointer; transition: all 0.2s; width: auto;">
+                    Male 👨‍⚕️
+                  </button>
+                </div>
+              </div>
+
+              <div id="doctors-container" style="display: flex; flex-direction: column; gap: 1rem;">
+                <% doctors.forEach(doc=> { %>
+                  <% 
+                    const isPrimary = (currentUser.primaryDoctorId && currentUser.primaryDoctorId._id.toString() === doc._id.toString()) || false;
+                  %>
+                  <div class="doctor-select-card" data-id="<%= doc._id %>" data-gender="<%= doc.gender || 'Male' %>" data-fee="<%= doc.consultationFee || 400 %>"
+                    data-specialization="<%= doc.specialization %>"
+                    data-availability='<%= JSON.stringify(doc.availability) %>'
+                    style="<%= isPrimary ? 'border: 2px solid var(--primary); background: rgba(13, 148, 136, 0.02);' : '' %>"
+                    onclick="selectDoctor('<%= doc._id %>', '<%= doc.name %>', <%= doc.consultationFee || 400 %>)">
+                    <div style="display: flex; align-items: center; gap: 1rem; flex: 1;">
+                      <div
+                        style="width: 44px; height: 44px; border-radius: 10px; background: rgba(13, 148, 136, 0.06); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)"
+                          stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                          <circle cx="12" cy="7" r="4" />
+                        </svg>
+                      </div>
+                      <div style="min-width: 0;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                          <h3 style="color: var(--text); font-size: 1.05rem; font-weight: 700; margin: 0;">
+                            <%= doc.name %>
+                          </h3>
+                          <% if (isPrimary) { %>
+                            <span style="background: var(--primary); color: white; padding: 0.15rem 0.45rem; border-radius: 4px; font-size: 0.65rem; font-weight: 700; text-transform: uppercase;">Assigned Specialist</span>
+                          <% } %>
+                        </div>
+                        <p style="color: var(--text-secondary); font-size: 0.82rem; margin: 0; margin-top: 0.2rem; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                          <%= doc.specialization %>
+                          <% if (doc.qualification) { %> · <%= doc.qualification %>
+                          <% } %>
+                          <span class="badge" style="background: rgba(13, 148, 136, 0.06); color: var(--primary); font-size: 0.72rem; padding: 0.15rem 0.45rem; border-radius: 4px; font-weight: 700;">
+                            <%= doc.gender || 'Male' %>
+                          </span>
+                        </p>
+                      </div>
+                    </div>
+                    <div style="text-align: right; flex-shrink: 0;">
+                      <div style="font-size: 1.1rem; font-weight: 800; color: var(--primary);">₹<%= doc.consultationFee
+                          || 400 %>
+                      </div>
+                      <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 500;">per session</div>
+                    </div>
+                  </div>
+                  <% }) %>
+              </div>
+            </div>
+
+            <!-- ============================================ -->
+            <!-- STEP 3: Select Slot & Mode                   -->
+            <!-- ============================================ -->
+            <div id="wizard-step-3" class="wizard-step" style="display: none;">
+              <div style="margin-bottom: 1.5rem;">
+                <h2 style="font-size: 1.35rem; font-weight: 700; color: var(--text); margin-bottom: 0.25rem;">Pick a
+                  Time Slot</h2>
+                <p style="color: var(--text-secondary); font-size: 0.9rem;">Choose an available slot and how you'd like
+                  to connect.</p>
+              </div>
+
+              <!-- Available Slots -->
+              <div style="margin-bottom: 1.5rem;">
+                <label
+                  style="display: block; font-weight: 700; margin-bottom: 0.5rem; color: var(--text); font-size: 0.88rem;">
+                  Available Slots for <span id="display-doc-name" style="color: var(--primary);">Selected Doctor</span>
+                </label>
+                <div id="doctor-availability-days" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                  <!-- Rendered via JS -->
+                </div>
+              </div>
+
+              <!-- Consultation Mode -->
+              <div>
+                <label
+                  style="display: block; font-weight: 700; margin-bottom: 0.5rem; color: var(--text); font-size: 0.88rem;">Consultation
+                  Mode</label>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0.75rem;">
+                  <label class="mode-card selected-mode">
+                    <input type="radio" name="consultationMode" value="Video Consultation" checked
+                       style="display: none;">
+                    <div class="mode-icon">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <polygon points="23 7 16 12 23 17 23 7" />
+                        <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+                      </svg>
+                    </div>
+                    <span>Video Call</span>
+                    <div style="margin-top: 1rem; display: flex; gap: 0.75rem;">
+                      <a href="/consultation/room" class="btn btn-primary" style="flex: 1; justify-content: center; font-size: 0.75rem; padding: 0.4rem 0.8rem;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                          stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                          <polygon points="23 7 16 12 23 17 23 7" />
+                          <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+                        </svg>
+                        <span>Join Video Call</span>
+                      </a>
+                    </div>
+                  </label>
+                  <label class="mode-card">
+                    <input type="radio" name="consultationMode" value="Phone Consultation" style="display: none;">
+                    <div class="mode-icon">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <path
+                          d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                      </svg>
+                    </div>
+                    <span>Phone Call</span>
+                  </label>
+                  <label class="mode-card">
+                    <input type="radio" name="consultationMode" value="Text Chat" style="display: none;">
+                    <div class="mode-icon">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                      </svg>
+                    </div>
+                    <span>Text Chat</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- ============================================ -->
+            <!-- STEP 4: Confirm Booking                      -->
+            <!-- ============================================ -->
+            <div id="wizard-step-4" class="wizard-step" style="display: none;">
+              <div style="margin-bottom: 1.5rem;">
+                <h2 style="font-size: 1.35rem; font-weight: 700; color: var(--text); margin-bottom: 0.25rem;">Review &
+                  Confirm</h2>
+                <p style="color: var(--text-secondary); font-size: 0.9rem;">Please verify your appointment details
+                  before confirming.</p>
+              </div>
+
+              <div
+                style="background: var(--bg); border: 1px solid var(--border); border-radius: 12px; overflow: hidden;">
+                <div class="summary-row">
+                  <span>Service</span>
+                  <strong id="summary-service">-</strong>
+                </div>
+                <div class="summary-row">
+                  <span>Specialist</span>
+                  <strong id="summary-doctor">-</strong>
+                </div>
+                <div class="summary-row">
+                  <span>Scheduled Slot</span>
+                  <strong id="summary-slot">-</strong>
+                </div>
+                <div class="summary-row">
+                  <span>Mode</span>
+                  <strong id="summary-mode">-</strong>
+                </div>
+                <div class="summary-row">
+                  <span>Contact Email</span>
+                  <strong id="summary-email">-</strong>
+                </div>
+                <div class="summary-row" style="border-bottom: none; background: rgba(13, 148, 136, 0.03);">
+                  <span style="font-weight: 600;">Consultation Fee</span>
+                  <strong id="summary-fee" style="color: var(--primary); font-size: 1.2rem;">₹0</strong>
+                </div>
+              </div>
+
+              <!-- Continuity Warning -->
+              <div id="continuity-warning" style="display: none; background: rgba(245, 158, 11, 0.05); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 8px; padding: 0.85rem 1rem; margin-top: 1rem; gap: 0.65rem; align-items: flex-start;">
+                <span style="font-size: 1.15rem; line-height: 1;">⚠️</span>
+                <div style="font-size: 0.82rem; color: #b45309; line-height: 1.45; text-align: left;">
+                  To ensure continuity of care, we recommend booking consultations with your assigned specialist, <strong><%= currentUser.primaryDoctorId ? currentUser.primaryDoctorId.name : '' %></strong>. Are you sure you want to proceed with a different doctor?
+                </div>
+              </div>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div id="wizard-navigation"
+              style="display: flex; justify-content: space-between; align-items: center; margin-top: 2rem; border-top: 1px solid var(--border); padding-top: 1.25rem;">
+              <button type="button" id="prev-btn" class="btn btn-secondary" onclick="moveStep(-1)"
+                style="display: none; padding: 0.55rem 1.25rem; font-weight: 600; border-radius: 8px; font-size: 0.85rem;">
+                ← Back
+              </button>
+              <div style="flex: 1;"></div>
+              <button type="button" id="next-btn" class="btn btn-primary" onclick="moveStep(1)"
+                style="padding: 0.55rem 1.5rem; font-weight: 700; border-radius: 8px; display: none; font-size: 0.85rem;">
+                Continue →
+              </button>
+              <button type="submit" id="submit-btn" class="btn btn-primary"
+                style="display: none; padding: 0.55rem 1.75rem; font-weight: 700; border-radius: 8px; background: linear-gradient(135deg, var(--primary), #0f766e); font-size: 0.85rem;">
+                ✓ Confirm Booking
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 3: Medical Identity -->
+    <div id="medical-panel" class="dashboard-panel card-premium" style="padding: 1.75rem;">
+      <div style="margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem;">
+        <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--text); margin: 0 0 0.35rem 0;">🛡️ Confidential Medical Profile</h2>
+        <p style="color: var(--text-secondary); font-size: 0.88rem; margin: 0;">Your account and medical credentials registered at Sparsh.</p>
+      </div>
+
+      <div
+        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+        <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.01); transition: all 0.2s;" onmouseover="this.style.borderColor='rgba(13, 148, 136, 0.3)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.borderColor='var(--border)'; this.style.transform='translateY(0)';">
+          <div
+            style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; margin-bottom: 0.25rem;">
+            Profile Type</div>
+          <div
+            style="font-size: 0.95rem; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 0.4rem;">
+            <% if (currentUser.isAnonymous) { %>
+              🔒 Anonymous Profile
+              <% } else { %>
+                👤 Verified Patient
+                <% } %>
+          </div>
+        </div>
+
+        <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.01); transition: all 0.2s;" onmouseover="this.style.borderColor='rgba(13, 148, 136, 0.3)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.borderColor='var(--border)'; this.style.transform='translateY(0)';">
+          <div
+            style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; margin-bottom: 0.25rem;">
+            Communication Email</div>
+          <div style="font-size: 0.95rem; font-weight: 700; color: var(--text); word-break: break-all;">
+            <%= currentUser.email %>
+          </div>
+        </div>
+
+        <% if (!currentUser.isAnonymous) { %>
+          <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.01); transition: all 0.2s;" onmouseover="this.style.borderColor='rgba(13, 148, 136, 0.3)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.borderColor='var(--border)'; this.style.transform='translateY(0)';">
+            <div
+              style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; margin-bottom: 0.25rem;">
+              Age</div>
+            <div style="font-size: 0.95rem; font-weight: 700; color: var(--text);">
+              <%= currentUser.age %> years
+            </div>
+          </div>
+          <% } %>
+
+        <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.01); transition: all 0.2s;" onmouseover="this.style.borderColor='rgba(13, 148, 136, 0.3)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.borderColor='var(--border)'; this.style.transform='translateY(0)';">
+          <div
+            style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; margin-bottom: 0.25rem;">
+            Assigned Care Specialist</div>
+          <div style="font-size: 0.95rem; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 0.4rem;">
+            <% if (currentUser.primaryDoctorId) { %>
+              ⚕️ <%= currentUser.primaryDoctorId.name %>
+            <% } else { %>
+              🔒 None Assigned Yet
+            <% } %>
+          </div>
+        </div>
+      </div>
+
+      <div
+        style="background: rgba(13, 148, 136, 0.04); border: 1px solid rgba(13, 148, 136, 0.12); border-radius: 12px; padding: 1.25rem; display: flex; gap: 0.85rem; margin-bottom: 1.75rem;">
+        <div style="color: var(--primary); font-size: 1.35rem; flex-shrink: 0; padding-top: 0.1rem;">
+          🛡️
+        </div>
+        <div>
+          <h4 style="margin: 0 0 0.25rem 0; font-weight: 700; color: var(--text); font-size: 0.9rem;">Privacy Standard Protection</h4>
+          <p style="margin: 0; color: var(--text-secondary); font-size: 0.82rem; line-height: 1.5;">
+            Your medical communication is encrypted and protected under strict clinical guidelines. If you require
+            absolute anonymity, check that your profile remains configured to Anonymous Profile mode.
+          </p>
+        </div>
+      </div>
+
+      <!-- Document Vault (Mock) -->
+      <div style="border-top: 1px solid var(--border); padding-top: 1.5rem;">
+        <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 0.85rem; letter-spacing: -0.01em;">Document & Prescription Vault</h3>
+        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+          
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.85rem 1.15rem; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; flex-wrap: wrap; gap: 0.75rem; transition: border-color 0.2s;" onmouseover="this.style.borderColor='rgba(13, 148, 136, 0.3)';" onmouseout="this.style.borderColor='var(--border)';">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <div style="width: 36px; height: 36px; border-radius: 8px; background: rgba(239, 68, 68, 0.1); color: #ef4444; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+              </div>
+              <div>
+                <div style="font-weight: 600; color: var(--text); font-size: 0.88rem;">General Checkup Prescription</div>
+                <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.15rem;">Issued by Dr. Sharma • 2 days ago</div>
+              </div>
+            </div>
+            <button onclick="showToast('Secure Download', 'Initiating encrypted PDF download...')" style="padding: 0.45rem 1rem; border: 1px solid var(--primary); background: rgba(13, 148, 136, 0.05); color: var(--primary); border-radius: 6px; font-weight: 600; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 0.35rem; transition: all 0.2s;" onmouseover="this.style.background='var(--primary)'; this.style.color='#fff';" onmouseout="this.style.background='rgba(13, 148, 136, 0.05)'; this.style.color='var(--primary)';">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Download PDF
+            </button>
+          </div>
+          
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.85rem 1.15rem; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; flex-wrap: wrap; gap: 0.75rem; transition: border-color 0.2s;" onmouseover="this.style.borderColor='rgba(13, 148, 136, 0.3)';" onmouseout="this.style.borderColor='var(--border)';">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <div style="width: 36px; height: 36px; border-radius: 8px; background: rgba(59, 130, 246, 0.1); color: #3b82f6; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              </div>
+              <div>
+                <div style="font-weight: 600; color: var(--text); font-size: 0.88rem;">Blood Test Results</div>
+                <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.15rem;">Sparsh Pathology • 1 week ago</div>
+              </div>
+            </div>
+            <button onclick="showToast('Secure Download', 'Initiating encrypted PDF download...')" style="padding: 0.45rem 1rem; border: 1px solid var(--primary); background: rgba(13, 148, 136, 0.05); color: var(--primary); border-radius: 6px; font-weight: 600; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 0.35rem; transition: all 0.2s;" onmouseover="this.style.background='var(--primary)'; this.style.color='#fff';" onmouseout="this.style.background='rgba(13, 148, 136, 0.05)'; this.style.color='var(--primary)';">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Download PDF
+            </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%- include('../partials/booking_wizard_styles') %>
+
+    <style>
+      /* Header Card */
+      .dashboard-header-card {
+        background: linear-gradient(135deg, #111827 0%, #1e293b 100%);
+        border-radius: 20px;
+        padding: 1.5rem 2.5rem;
+        color: #fff;
+        box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.2);
+      }
+
+      .btn-logout {
+        transition: all 0.2s ease;
+        text-decoration: none;
+      }
+
+      .btn-logout:hover {
+        background: rgba(255, 255, 255, 0.2) !important;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      /* 3D Card Animation from Landing Page */
+      .animated-3d-card {
+        transform: rotateY(-6deg) rotateX(3deg);
+        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .animated-3d-card:hover {
+        transform: rotateY(0deg) rotateX(0deg) translateY(-8px) scale(1.02);
+        border-color: rgba(13, 148, 136, 0.35) !important;
+        box-shadow: 0 30px 60px -15px rgba(13, 148, 136, 0.2) !important;
+        z-index: 10;
+      }
+    </style>
+
+    <script>
+      // Tab Switching
+      const tabs = document.querySelectorAll('.navigation-tab');
+      const panels = document.querySelectorAll('.dashboard-panel');
+
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          const panelId = tab.dataset.panel;
+          switchPanel(panelId);
+        });
+      });
+
+      function switchPanel(panelId) {
+        tabs.forEach(t => {
+          const isActive = t.dataset.panel === panelId;
+          t.classList.toggle('active', isActive);
+          t.style.borderBottom = isActive ? '2px solid var(--primary)' : '2px solid transparent';
+          t.style.color = isActive ? 'var(--text)' : 'var(--text-secondary)';
+          t.style.fontWeight = isActive ? '600' : '500';
+        });
+        panels.forEach(p => {
+          const isTarget = p.id === panelId;
+          p.style.display = isTarget ? 'block' : 'none';
+          p.classList.toggle('active', isTarget);
+        });
+      }
+
+      // Set default panel view states on load
+      document.addEventListener('DOMContentLoaded', () => {
+        switchPanel('appointments-panel');
+      });
+
+      // WIZARD CODE
+      let currentStep = 1;
+      const totalSteps = 4;
+      let selectedService = '';
+      let selectedDoctorId = '';
+      let selectedDoctorName = '';
+      let selectedFee = 400;
+      let selectedDate = '';
+      let selectedTime = '';
+
+      function selectService(service) {
+        selectedService = service;
+        document.getElementById('hidden-service-type').value = service;
+        document.querySelectorAll('.service-card').forEach(c => c.classList.remove('selected'));
+        document.querySelector(`.service-card[data-service="${service}"]`).classList.add('selected');
+        document.getElementById('display-selected-service').textContent = service;
+        setTimeout(() => moveStep(1), 300);
+      }
+
+      function selectDoctor(docId, docName, fee) {
+        selectedDoctorId = docId;
+        selectedDoctorName = docName;
+        selectedFee = fee;
+
+        document.getElementById('hidden-doctor-id').value = docId;
+        document.getElementById('hidden-amount').value = fee;
+
+        document.querySelectorAll('.doctor-select-card').forEach(c => c.classList.remove('selected'));
+        const docCard = document.querySelector(`.doctor-select-card[data-id="${docId}"]`);
+        if (!docCard) return;
+
+        docCard.classList.add('selected');
+        const availabilityString = docCard.getAttribute('data-availability');
+        const daysContainer = document.getElementById('doctor-availability-days');
+        daysContainer.innerHTML = '';
+
+        if (availabilityString) {
+          const availabilities = JSON.parse(availabilityString);
+          const openSlots = availabilities.filter(s => !s.isBooked);
+          if (openSlots.length === 0) {
+            daysContainer.innerHTML = '<div style="color: var(--text-muted); font-size: 0.9rem; padding: 1rem; text-align: center; border: 1px dashed var(--border); border-radius: 10px; width: 100%;">No open slots currently available for this doctor.</div>';
+          } else {
+            openSlots.forEach(slot => {
+              const dateStr = slot.date.split('T')[0];
+              const btn = document.createElement('div');
+              btn.className = 'slot-pill';
+              btn.innerHTML = `<span style="font-weight: 700;">📅 ${dateStr}</span> &nbsp;|&nbsp; 🕒 ${slot.time}`;
+              btn.onclick = function (e) {
+                e.stopPropagation();
+                document.querySelectorAll('.slot-pill').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                selectedDate = dateStr;
+                selectedTime = slot.time;
+                document.getElementById('hidden-date').value = selectedDate;
+                document.getElementById('hidden-time').value = selectedTime;
+              };
+              daysContainer.appendChild(btn);
+            });
+          }
+        }
+
+        document.getElementById('display-doc-name').textContent = docName;
+        moveStep(1);
+      }
+
+      // Mode card selection
+      document.querySelectorAll('.mode-card').forEach(card => {
+        card.addEventListener('click', () => {
+          document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('selected-mode'));
+          card.classList.add('selected-mode');
+          card.querySelector('input[type="radio"]').checked = true;
+        });
+      });
+
+      function moveStep(direction) {
+        if (direction === 1) {
+          if (currentStep === 1) {
+            if (!selectedService) {
+              showToast('Booking Alert', 'Please select a service first.');
+              return;
+            }
+          }
+          if (currentStep === 2 && !selectedDoctorId) {
+            showToast('Booking Alert', 'Please choose a specialist.');
+            return;
+          }
+          if (currentStep === 3) {
+            if (!selectedDate || !selectedTime) {
+              showToast('Booking Alert', 'Please select an available consultation slot.');
+              return;
+            }
+            const selectedMode = document.querySelector('input[name="consultationMode"]:checked').value;
+            document.getElementById('summary-service').innerText = selectedService;
+            document.getElementById('summary-doctor').innerText = selectedDoctorName;
+            document.getElementById('summary-slot').innerText = `${selectedDate} at ${selectedTime}`;
+            document.getElementById('summary-mode').innerText = selectedMode;
+            document.getElementById('summary-email').innerText = document.getElementById('hidden-contact-value').value || '<%= currentUser.email %>';
+            document.getElementById('summary-fee').innerText = `₹${selectedFee}`;
+
+            // Check if patient selected a different doctor than their primary doctor
+            const primaryDocId = '<%= currentUser.primaryDoctorId ? currentUser.primaryDoctorId._id.toString() : "" %>';
+            const warningBox = document.getElementById('continuity-warning');
+            if (warningBox) {
+              if (primaryDocId && primaryDocId !== selectedDoctorId) {
+                warningBox.style.display = 'flex';
+              } else {
+                warningBox.style.display = 'none';
+              }
+            }
+          }
+        }
+
+        document.getElementById(`wizard-step-${currentStep}`).style.display = 'none';
+        currentStep += direction;
+        document.getElementById(`wizard-step-${currentStep}`).style.display = 'block';
+        updateStepperUI();
+      }
+
+      function updateStepperUI() {
+        const titles = [
+          "Step 1 of 4 — Select Service",
+          "Step 2 of 4 — Choose Specialist",
+          "Step 3 of 4 — Pick Time Slot & Mode",
+          "Step 4 of 4 — Review & Confirm"
+        ];
+        document.getElementById('step-subtitle').innerText = titles[currentStep - 1];
+
+        for (let i = 1; i <= totalSteps; i++) {
+          const stepEl = document.getElementById(`progress-${i}`);
+          stepEl.classList.remove('active', 'completed');
+          if (i === currentStep) stepEl.classList.add('active');
+          else if (i < currentStep) stepEl.classList.add('completed');
+        }
+        for (let i = 1; i < totalSteps; i++) {
+          document.getElementById(`progress-line-${i}`).classList.toggle('active', i < currentStep);
+        }
+
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const submitBtn = document.getElementById('submit-btn');
+
+        prevBtn.style.display = currentStep > 1 ? 'inline-flex' : 'none';
+        if (currentStep === totalSteps) {
+          nextBtn.style.display = 'none';
+          submitBtn.style.display = 'inline-flex';
+        } else {
+          nextBtn.style.display = currentStep === 3 ? 'inline-flex' : 'none';
+          submitBtn.style.display = 'none';
+        }
+      }
+
+      // Countdown Timer Logic
+      const timerEl = document.getElementById('countdown-timer');
+      if (timerEl) {
+        const targetDate = new Date(timerEl.dataset.target).getTime();
+        
+        setInterval(() => {
+          const now = new Date().getTime();
+          const distance = targetDate - now;
+          
+          if (distance < 0) {
+            timerEl.innerHTML = "00:00:00";
+            return;
+          }
+          
+          const hours = Math.floor(distance / (1000 * 60 * 60));
+          const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+          const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+          
+          timerEl.innerHTML = 
+            (hours < 10 ? "0" + hours : hours) + ":" + 
+            (minutes < 10 ? "0" + minutes : minutes) + ":" + 
+            (seconds < 10 ? "0" + seconds : seconds);
+        }, 1000);
+      }
+
+      // PEP Exposure Countdown Timer Logic
+      const pepTimerEl = document.getElementById('pep-countdown-timer');
+      if (pepTimerEl) {
+        const targetDate = new Date(pepTimerEl.dataset.end).getTime();
+        
+        setInterval(() => {
+          const now = new Date().getTime();
+          const distance = targetDate - now;
+          
+          if (distance < 0) {
+            pepTimerEl.innerHTML = "EXPIRED";
+            pepTimerEl.style.color = "#94a3b8";
+            return;
+          }
+          
+          const hours = Math.floor(distance / (1000 * 60 * 60));
+          const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+          const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+          
+          pepTimerEl.innerHTML = 
+            (hours < 10 ? "0" + hours : hours) + ":" + 
+            (minutes < 10 ? "0" + minutes : minutes) + ":" + 
+            (seconds < 10 ? "0" + seconds : seconds);
+        }, 1000);
+      }
+
+      function showToast(title, msg) {
+        let container = document.querySelector('.toast-container');
+        if (!container) {
+          container = document.createElement('div');
+          container.className = 'toast-container';
+          document.body.appendChild(container);
+        }
+        if (!document.getElementById('toast-animation-styles')) {
+          const style = document.createElement('style');
+          style.id = 'toast-animation-styles';
+          style.innerHTML = `
+            @keyframes toastOut {
+              from { opacity: 1; transform: translateX(0); }
+              to   { opacity: 0; transform: translateX(20px); }
+            }
+          `;
+          document.head.appendChild(style);
+        }
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.innerHTML = `
+          <div class="toast-title">${title}</div>
+          <div class="toast-msg">${msg}</div>
+        `;
+        container.appendChild(toast);
+        setTimeout(() => {
+          toast.style.animation = 'toastOut 0.3s ease forwards';
+          toast.addEventListener('animationend', () => toast.remove());
+        }, 3000);
+      }
+
+      // Filter doctors list by gender
+      function filterDoctorsByGender(gender) {
+        // 1. Reset button styles
+        const buttons = {
+          'all': document.getElementById('gender-btn-all'),
+          'Female': document.getElementById('gender-btn-female'),
+          'Male': document.getElementById('gender-btn-male')
+        };
+
+        Object.keys(buttons).forEach(key => {
+          const btn = buttons[key];
+          if (!btn) return;
+          if (key === gender) {
+            btn.style.background = 'var(--primary)';
+            btn.style.color = 'white';
+            btn.style.borderColor = 'var(--primary)';
+          } else {
+            btn.style.background = 'white';
+            btn.style.color = 'var(--text-secondary)';
+            btn.style.borderColor = 'var(--border)';
+          }
+        });
+
+        // 2. Hide/show cards
+        let visibleCount = 0;
+        document.querySelectorAll('.doctor-select-card').forEach(card => {
+          const docGender = card.getAttribute('data-gender');
+          if (gender === 'all' || docGender === gender) {
+            card.style.display = 'flex';
+            visibleCount++;
+          } else {
+            card.style.display = 'none';
+          }
+        });
+
+        // 3. Handle empty state if no doctors fit
+        const container = document.getElementById('doctors-container');
+        let emptyMsg = document.getElementById('gender-empty-message');
+        if (visibleCount === 0) {
+          if (!emptyMsg) {
+            emptyMsg = document.createElement('div');
+            emptyMsg.id = 'gender-empty-message';
+            emptyMsg.style = 'color: var(--text-muted); font-size: 0.9rem; padding: 2rem; text-align: center; border: 1px dashed var(--border); border-radius: 12px; width: 100%;';
+            emptyMsg.innerText = 'No specialists of the selected gender are currently registered.';
+            container.appendChild(emptyMsg);
+          } else {
+            emptyMsg.style.display = 'block';
+          }
+        } else if (emptyMsg) {
+          emptyMsg.style.display = 'none';
+        }
+      }
+    </script>
+
+    <%- include('../partials/footer') %>

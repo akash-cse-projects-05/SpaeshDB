@@ -1,0 +1,57 @@
+<%- include('../partials/header') %>
+
+<div class="container" style="max-width: 800px; margin: 3rem auto;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+    <h1 style="font-size: 2rem; font-weight: 700; color: var(--text); letter-spacing: -0.02em; margin: 0;">
+      Professional Profile
+    </h1>
+    <a href="/doctor/dashboard" class="btn btn-secondary" style="padding: 0.5rem 1rem;">Back to Dashboard</a>
+  </div>
+
+  <div class="card-premium" style="padding: 2rem;">
+    <div class="section-heading" style="margin-bottom: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem;">
+      <h2 style="font-size: 1.35rem; font-weight: 600; color: var(--text); margin: 0;">Manage Profile</h2>
+      <p style="color: var(--text-secondary); font-size: 0.9rem; margin: 0.25rem 0 0 0;">
+        Update your public doctor profile, specialized pathways, and consultation fee.
+      </p>
+    </div>
+    <form action="/doctor/profile/update" method="POST" class="profile-form" style="display: flex; flex-direction: column; gap: 1.5rem;">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      
+      <div class="form-group" style="display: flex; flex-direction: column; gap: 0.4rem;">
+        <label for="name" style="font-size: 0.85rem; font-weight: 600; color: var(--text);">Full Name</label>
+        <input type="text" name="name" id="name" class="form-control" value="<%= doctor.name %>" required>
+      </div>
+      
+      <div class="form-group" style="display: flex; flex-direction: column; gap: 0.4rem;">
+        <label for="specialization" style="font-size: 0.85rem; font-weight: 600; color: var(--text);">Specialization</label>
+        <input type="text" name="specialization" id="specialization" class="form-control" value="<%= doctor.specialization %>" required>
+      </div>
+
+      <div class="form-group" style="display: flex; flex-direction: column; gap: 0.4rem;">
+        <label for="gender" style="font-size: 0.85rem; font-weight: 600; color: var(--text);">Gender</label>
+        <select name="gender" id="gender" class="form-control" required style="padding: 0.5rem; border: 1px solid var(--border); border-radius: 8px; background: white;">
+          <option value="Male" <%= doctor.gender === 'Male' ? 'selected' : '' %>>Male</option>
+          <option value="Female" <%= doctor.gender === 'Female' ? 'selected' : '' %>>Female</option>
+          <option value="Other" <%= doctor.gender === 'Other' ? 'selected' : '' %>>Other</option>
+        </select>
+      </div>
+      
+      <div class="form-group" style="display: flex; flex-direction: column; gap: 0.4rem;">
+        <label for="consultationFee" style="font-size: 0.85rem; font-weight: 600; color: var(--text);">Consultation Fee (₹)</label>
+        <input type="number" name="consultationFee" id="consultationFee" class="form-control" value="<%= doctor.consultationFee %>" min="0" required>
+      </div>
+      
+      <div class="form-group" style="display: flex; flex-direction: column; gap: 0.4rem;">
+        <label for="bio" style="font-size: 0.85rem; font-weight: 600; color: var(--text);">Professional Bio</label>
+        <textarea name="bio" id="bio" class="form-control" rows="4" style="resize: vertical;" required><%= doctor.bio %></textarea>
+      </div>
+      
+      <div style="display: flex; justify-content: flex-end; margin-top: 1rem;">
+        <button type="submit" class="btn btn-primary" style="padding: 0.75rem 2rem; font-weight: 600;">Save Updates</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

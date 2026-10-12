@@ -1,0 +1,297 @@
+<%- include('partials/header') %>
+
+  <div class="hero-wrapper">
+    <div class="hero-grid">
+      <div class="hero-text">
+        <span class="hero-kicker">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px; display: inline-block; vertical-align: middle;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Compassionate, Secure &amp; Discreet Support
+        </span>
+        <h1>Confidential Health &amp; Telehealth Consultation</h1>
+        <p>Instant access to expert HIV specialists, PEP emergency consultation, PrEP preventative planning, and
+          clinical counseling. Available 24/7 with complete anonymity.</p>
+
+        <div class="hero-actions" style="display: flex; gap: 1.25rem; flex-wrap: wrap;">
+          <% if (currentUser && currentUser.role==='patient' ) { %>
+            <a href="/patient/dashboard" class="btn btn-primary btn-lg"
+              style="background: #ffffff; color: #0f766e; border-color: #ffffff; padding: 0.75rem 2rem; font-size: 1rem;">My
+              Portal</a>
+            <% } else if (currentUser && currentUser.role==='doctor' ) { %>
+              <a href="/doctor/dashboard" class="btn btn-primary btn-lg"
+                style="background: #ffffff; color: #0f766e; border-color: #ffffff; padding: 0.75rem 2rem; font-size: 1rem;">Doctor
+                Dashboard</a>
+              <% } else { %>
+                <a href="/book" class="btn btn-lg"
+                  style="background: #2dd4bf; color: #031412; border-color: #2dd4bf; font-weight: 700; padding: 0.75rem 2rem; font-size: 1rem;">Book
+                  Consultation</a>
+                <a href="/learn" class="btn btn-secondary btn-lg"
+                  style="border: 1.5px solid rgba(255,255,255,0.7); color: #fff; padding: 0.75rem 2rem; font-size: 1rem;">Learn
+                  About PEP &amp; PrEP</a>
+                <% } %>
+        </div>
+      </div>
+
+      <!-- Interactive Mockup Widget -->
+      <div class="mockup-wrapper">
+        <div class="mockup-card">
+          <div class="mockup-header">
+            <div class="mockup-dot"></div>
+            <div class="mockup-dot"></div>
+            <div class="mockup-dot"></div>
+            <span
+              style="color: #64748b; font-size: 0.75rem; margin-left: 0.5rem; font-family: monospace;">sparsh-secure-portal</span>
+          </div>
+          <div style="margin-bottom: 1.5rem;">
+            <h4 style="color: #ffffff; font-size: 0.95rem; margin-bottom: 0.25rem; font-weight: 700;">Secure Patient
+              Workspace</h4>
+            <p style="color: #64748b; font-size: 0.75rem;">100% Anonymous &amp; End-to-End Encrypted</p>
+          </div>
+
+          <div class="mockup-item">
+            <div>
+              <p
+                style="color: #64748b; font-size: 0.65rem; text-transform: uppercase; font-weight: 700; margin-bottom: 0.15rem;">
+                Active Consultation</p>
+              <strong>PEP Emergency Plan</strong>
+            </div>
+            <span>CONFIRMED</span>
+          </div>
+
+          <div class="mockup-item">
+            <div>
+              <p
+                style="color: #64748b; font-size: 0.65rem; text-transform: uppercase; font-weight: 700; margin-bottom: 0.15rem;">
+                Assigned Specialist</p>
+              <strong>Dr. Meera Sharma</strong>
+            </div>
+            <span
+              style="color: #38bdf8; background: rgba(56, 189, 248, 0.08); border-color: rgba(56, 189, 248, 0.15);">ONLINE</span>
+          </div>
+
+          <div
+            style="background: rgba(45, 212, 191, 0.05); border: 1px dashed rgba(45, 212, 191, 0.2); border-radius: 8px; padding: 0.75rem; text-align: center; margin-top: 1rem; display: flex; align-items: center; justify-content: center; gap: 0.35rem;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#2dd4bf" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <p style="color: #2dd4bf; font-size: 0.75rem; font-weight: 600; margin: 0;">Identity Masked &amp; Emails Encrypted</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Trust & Stats Banner -->
+  <div class="stats-banner">
+    <div class="stat-item">
+      <div class="stat-number">10k+</div>
+      <div class="stat-label">Anonymous Sessions</div>
+    </div>
+    <div class="stat-item" style="border-left: 1px solid var(--border); border-right: 1px solid var(--border);">
+      <div class="stat-number">15 Min</div>
+      <div class="stat-label">Average Response</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number">100%</div>
+      <div class="stat-label">HIPAA Compliant</div>
+    </div>
+  </div>
+
+  <!-- Why Choose Sparsh? Section -->
+  <section id="about" style="margin-bottom: 6rem; scroll-margin-top: 5rem;">
+    <div style="text-align: center; margin-bottom: 4rem;">
+      <span class="badge-premium">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px; display: inline-block; vertical-align: middle;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        COMPLETE CONFIDENTIALITY &amp; TRUST
+      </span>
+      <h2 style="font-size: 2.5rem; margin-bottom: 1rem; color: #2d3748; font-weight: 800; letter-spacing: -0.02em;">Why
+        Choose Sparsh?</h2>
+      <p style="color: #718096; font-size: 1.1rem; max-width: 600px; margin: 0 auto;">Our platform is engineered from
+        the ground up to guarantee clinical privacy, medical competence, and emergency response speed.</p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem;">
+      <div class="card-premium" style="text-align: center;">
+        <div
+          style="width: 52px; height: 52px; background: rgba(13, 148, 136, 0.08); color: var(--primary); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 1.25rem;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
+        <h3 style="margin-bottom: 0.75rem; font-size: 1.25rem; font-weight: 700; color: var(--text);">Complete Anonymity
+        </h3>
+        <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.6;">Consult with top clinical
+          practitioners without ever exposing your real name or personal identity.</p>
+      </div>
+      <div class="card-premium" style="text-align: center;">
+        <div
+          style="width: 52px; height: 52px; background: rgba(13, 148, 136, 0.08); color: var(--primary); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 1.25rem;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        </div>
+        <h3 style="margin-bottom: 0.75rem; font-size: 1.25rem; font-weight: 700; color: var(--text);">Emergency Protocol
+        </h3>
+        <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.6;">Instant, immediate appointments
+          for PEP consultations where every single hour counts.</p>
+      </div>
+      <div class="card-premium" style="text-align: center;">
+        <div
+          style="width: 52px; height: 52px; background: rgba(13, 148, 136, 0.08); color: var(--primary); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 1.25rem;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </div>
+        <h3 style="margin-bottom: 0.75rem; font-size: 1.25rem; font-weight: 700; color: var(--text);">Certified
+          Specialists</h3>
+        <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.6;">All our consulting physicians are
+          verified specialists in sexual health and preventative medicine.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Services Grid -->
+  <section id="services" style="margin-bottom: 6rem; scroll-margin-top: 5rem;">
+    <div style="text-align: center; margin-bottom: 4rem;">
+      <span class="badge-premium">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px; display: inline-block; vertical-align: middle;"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        EXPERT CLINICAL PATHWAYS
+      </span>
+      <h2 style="font-size: 2.2rem; margin-bottom: 1rem; font-weight: 800; letter-spacing: -0.02em;">Our Care
+        Specialities</h2>
+      <p style="color: var(--text-secondary); max-width: 600px; margin: 0 auto;">Select from certified treatment
+        workflows tailored directly to your circumstances.</p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+      <div class="card-premium">
+        <span class="badge badge-teal" style="margin-bottom: 1.25rem;">Emergency Care</span>
+        <h3 style="margin-bottom: 0.75rem; font-size: 1.35rem; font-weight: 700; color: var(--text);">PEP
+          (Post-Exposure)</h3>
+        <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.5rem;">
+          Started within the critical 72-hour window of potential HIV exposure. A 28-day course designed to stop virus
+          replication.
+        </p>
+        <a href="/learn#pep"
+          style="color: var(--primary); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem;">Learn
+          Timeline &rarr;</a>
+      </div>
+
+      <div class="card-premium">
+        <span class="badge badge-blue" style="margin-bottom: 1.25rem;">Daily Prevention</span>
+        <h3 style="margin-bottom: 0.75rem; font-size: 1.35rem; font-weight: 700; color: var(--text);">PrEP
+          (Pre-Exposure)</h3>
+        <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.5rem;">
+          A highly effective daily medication routine that reduces the risk of contracting HIV via sexual contact by up
+          to 99%.
+        </p>
+        <a href="/learn#prep"
+          style="color: var(--primary); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem;">See
+          Daily Regimens &rarr;</a>
+      </div>
+
+      <div class="card-premium">
+        <span class="badge badge-green" style="margin-bottom: 1.25rem;">Supportive Space</span>
+        <h3 style="margin-bottom: 0.75rem; font-size: 1.35rem; font-weight: 700; color: var(--text);">General
+          Counselling</h3>
+        <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.5rem;">
+          Safe, completely private mental and emotional counseling to support you through diagnostic queries or clinical
+          concerns.
+        </p>
+        <a href="/learn#counselling"
+          style="color: var(--primary); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem;">Consultation
+          Details &rarr;</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section
+    style="background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 20px; padding: 4rem 2rem; margin-bottom: 6rem;">
+    <div style="text-align: center; margin-bottom: 4rem;">
+      <span class="badge-premium">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px; display: inline-block; vertical-align: middle;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        USER JOURNEY
+      </span>
+      <h2 style="font-size: 2.2rem; margin-bottom: 1rem; font-weight: 800; letter-spacing: -0.02em;">4 Steps to Safe
+        Consultation</h2>
+      <p style="color: var(--text-secondary); max-width: 600px; margin: 0 auto;">Your pathway to discrete care is
+        straightforward, quick, and secure.</p>
+    </div>
+
+    <div class="process-timeline">
+      <div class="process-step">
+        <div class="step-num-circle">1</div>
+        <h4 style="margin-bottom: 0.5rem; font-size: 1.1rem; font-weight: 700; color: var(--text);">Create Profile</h4>
+        <p style="color: var(--text-secondary); font-size: 0.85rem; line-height: 1.5;">Register securely. Check the
+          'Anonymous' box if you prefer to hide your real identity.</p>
+      </div>
+      <div class="process-step">
+        <div class="step-num-circle">2</div>
+        <h4 style="margin-bottom: 0.5rem; font-size: 1.1rem; font-weight: 700; color: var(--text);">Select Specialist
+        </h4>
+        <p style="color: var(--text-secondary); font-size: 0.85rem; line-height: 1.5;">Select your type of consultation
+          and choose from verified medical partners.</p>
+      </div>
+      <div class="process-step">
+        <div class="step-num-circle">3</div>
+        <h4 style="margin-bottom: 0.5rem; font-size: 1.1rem; font-weight: 700; color: var(--text);">Simulated Payment
+        </h4>
+        <p style="color: var(--text-secondary); font-size: 0.85rem; line-height: 1.5;">Complete payment securely using
+          our simulated integration gateway.</p>
+      </div>
+      <div class="process-step">
+        <div class="step-num-circle">4</div>
+        <h4 style="margin-bottom: 0.5rem; font-size: 1.1rem; font-weight: 700; color: var(--text);">Consult &amp;
+          Connect</h4>
+        <p style="color: var(--text-secondary); font-size: 0.85rem; line-height: 1.5;">Review records, text your doctor,
+          upload test parameters, and fetch digital prescriptions.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Blog Teaser -->
+  <% if (featuredArticles && featuredArticles.length> 0) { %>
+    <section style="margin-bottom: 6rem;">
+      <div
+        style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 3rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <span class="badge-premium">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px; display: inline-block; vertical-align: middle;"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+            KNOWLEDGE IS PREVENTION
+          </span>
+          <h2 style="font-size: 2.2rem; margin-top: 0.25rem; font-weight: 800; letter-spacing: -0.02em;">Knowledge &amp;
+            Prevention Hub</h2>
+          <p style="color: var(--text-secondary);">Empower yourself with medically certified insights.</p>
+        </div>
+        <a href="/blog" class="btn btn-secondary" style="padding: 0.6rem 1.3rem;">View All Articles &rarr;</a>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+        <% featuredArticles.forEach(article=> { %>
+          <div class="card-premium"
+            style="display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
+            <div>
+              <span
+                class="badge <%= article.category === 'PEP' ? 'badge-teal' : (article.category === 'PrEP' ? 'badge-blue' : 'badge-green') %>"
+                style="margin-bottom: 1.25rem;">
+                <%= article.category %>
+              </span>
+              <h3 style="margin-bottom: 0.75rem; font-size: 1.25rem; font-weight: 700; color: var(--text);">
+                <%= article.title %>
+              </h3>
+              <p style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5; margin-bottom: 1.5rem;">
+                <%= article.summary %>
+              </p>
+            </div>
+            <a href="/blog/<%= article.slug %>"
+              style="color: var(--primary); font-weight: 600; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 0.25rem; margin-top: auto;">Read
+              Full Article &rarr;</a>
+          </div>
+          <% }) %>
+      </div>
+    </section>
+    <% } %>
+
+      <!-- Bottom CTA Banner Section -->
+      <section class="cta-banner">
+        <h2>Ready to Consult with a Specialist?</h2>
+        <p>Get professional care, digital prescriptions, and guidance within minutes. Completely confidential and
+          anonymous options available.</p>
+        <a href="/book" class="btn btn-primary btn-lg"
+          style="background: #ffffff; color: var(--primary-hover); padding: 0.8rem 2.2rem; font-size: 1rem; border-radius: 999px; box-shadow: 0 6px 20px rgba(0,0,0,0.15); font-weight: 700; border-color: #ffffff;">Book
+          Appointment Now</a>
+      </section>
+
+      <%- include('partials/footer') %>

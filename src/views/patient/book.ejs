@@ -1,0 +1,626 @@
+<%- include('../partials/header') %>
+
+<div style="max-width: 780px; margin: 2rem auto; padding: 0 1rem;">
+  
+  <!-- Page Header -->
+  <div style="text-align: center; margin-bottom: 2.5rem;">
+    <h1 style="font-size: 2.2rem; font-weight: 800; color: var(--text); letter-spacing: -0.02em; margin-bottom: 0.5rem;">Book a Consultation</h1>
+    <p id="step-subtitle" style="color: var(--text-secondary); font-size: 1rem;">Step 1 of 4 — Select Service</p>
+  </div>
+
+  <!-- Progress Bar -->
+  <div style="display: flex; align-items: center; gap: 0; margin-bottom: 2.5rem; max-width: 500px; margin-left: auto; margin-right: auto;">
+    <div class="progress-step active" id="progress-1">
+      <div class="progress-dot">1</div>
+      <span>Service</span>
+    </div>
+    <div class="progress-line" id="progress-line-1"></div>
+    <div class="progress-step" id="progress-2">
+      <div class="progress-dot">2</div>
+      <span>Doctor</span>
+    </div>
+    <div class="progress-line" id="progress-line-2"></div>
+    <div class="progress-step" id="progress-3">
+      <div class="progress-dot">3</div>
+      <span>Slot</span>
+    </div>
+    <div class="progress-line" id="progress-line-3"></div>
+    <div class="progress-step" id="progress-4">
+      <div class="progress-dot">4</div>
+      <span>Confirm</span>
+    </div>
+  </div>
+
+  <!-- Wizard Card -->
+  <div class="card-premium" style="border-radius: 16px;">
+    <form id="booking-wizard-form" action="/patient/book" method="POST">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      
+      <!-- Hidden Form Parameters -->
+      <input type="hidden" name="doctorId" id="hidden-doctor-id">
+      <input type="hidden" name="amount" id="hidden-amount" value="400">
+      <input type="hidden" name="date" id="hidden-date">
+      <input type="hidden" name="time" id="hidden-time">
+      <input type="hidden" name="contactMethod" value="Email">
+      <input type="hidden" name="contactValue" id="hidden-contact-value" value="<%= currentUser.email || '' %>">
+      
+      <!-- ============================================ -->
+      <!-- STEP 1: Select Service                       -->
+      <!-- ============================================ -->
+      <div id="wizard-step-1" class="wizard-step">
+        <div style="margin-bottom: 2rem;">
+          <h2 style="font-size: 1.45rem; font-weight: 700; color: var(--text); margin-bottom: 0.35rem;">What do you need help with?</h2>
+          <p style="color: var(--text-secondary); font-size: 0.92rem;">Select the type of consultation you're looking for.</p>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+          <div class="service-card" data-service="PEP" onclick="selectService('PEP')">
+            <div style="display: flex; align-items: center; gap: 1rem; flex: 1;">
+              <div class="service-icon" style="background: rgba(239, 68, 68, 0.06); color: #ef4444;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              </div>
+              <div>
+                <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 0.2rem;">PEP Consultation</h3>
+                <p style="color: var(--text-secondary); font-size: 0.85rem; margin: 0;">Post-Exposure Prophylaxis — Emergency treatment within 72 hours of potential HIV exposure.</p>
+              </div>
+            </div>
+            <div class="service-check">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+          </div>
+
+          <div class="service-card" data-service="PrEP" onclick="selectService('PrEP')">
+            <div style="display: flex; align-items: center; gap: 1rem; flex: 1;">
+              <div class="service-icon" style="background: rgba(59, 130, 246, 0.06); color: #3b82f6;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+              </div>
+              <div>
+                <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 0.2rem;">PrEP Consultation</h3>
+                <p style="color: var(--text-secondary); font-size: 0.85rem; margin: 0;">Pre-Exposure Prophylaxis — Daily prevention medication for individuals at higher risk.</p>
+              </div>
+            </div>
+            <div class="service-check">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+          </div>
+
+          <div class="service-card" data-service="General Counselling" onclick="selectService('General Counselling')">
+            <div style="display: flex; align-items: center; gap: 1rem; flex: 1;">
+              <div class="service-icon" style="background: rgba(13, 148, 136, 0.06); color: #0d9488;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              </div>
+              <div>
+                <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 0.2rem;">General Counselling</h3>
+                <p style="color: var(--text-secondary); font-size: 0.85rem; margin: 0;">Confidential guidance, mental health support, and expert care planning.</p>
+              </div>
+            </div>
+            <div class="service-check">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+          </div>
+        </div>
+        
+        <!-- PEP Exposure Date/Time Picker -->
+        <div id="pep-exposure-container" style="display: none; margin-top: 1.5rem; background: rgba(239, 68, 68, 0.03); border: 1px solid rgba(239, 68, 68, 0.15); border-radius: 12px; padding: 1.25rem;">
+          <label style="display: block; font-weight: 700; color: var(--text); font-size: 0.9rem; margin-bottom: 0.5rem;">
+            ⚠️ When did the potential exposure event occur?
+          </label>
+          <input type="datetime-local" id="pep-exposure-input" class="form-control" style="width: 100%; max-width: 300px; padding: 0.5rem; border-radius: 8px;">
+          <p style="color: var(--text-secondary); font-size: 0.8rem; margin: 0.5rem 0 0 0; line-height: 1.4;">
+            We need this to calculate the remaining window for PEP efficacy. PEP must be started within 72 hours.
+          </p>
+        </div>
+
+        <!-- PEP Fast Auto-Book Section -->
+        <div id="pep-autobook-container" style="display: none; margin-top: 1.5rem; background: rgba(13, 148, 136, 0.03); border: 1px solid rgba(13, 148, 136, 0.15); border-radius: 12px; padding: 1.25rem;">
+          <h4 style="color: var(--primary); font-weight: 700; margin: 0 0 0.5rem 0; display: flex; align-items: center; gap: 0.35rem;">
+            ⚡ Urgent Emergency Auto-Match
+          </h4>
+          <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 1rem; line-height: 1.4;">
+            In emergency cases, every hour counts. Skip choosing doctor and timeslot manually. We will instantly book the earliest available slot with any approved specialist.
+          </p>
+          <button type="button" onclick="triggerAutoMatch()" class="btn btn-primary" style="background: linear-gradient(135deg, var(--primary), #0f766e); font-weight: 700; padding: 0.6rem 1.5rem; font-size: 0.88rem; border-radius: 8px;">
+            🚨 Fast Auto-Book PEP Now
+          </button>
+        </div>
+
+        <input type="hidden" name="consultationType" id="hidden-service-type">
+      </div>
+
+      <!-- ============================================ -->
+      <!-- STEP 2: Choose Your Doctor                   -->
+      <!-- ============================================ -->
+      <div id="wizard-step-2" class="wizard-step" style="display: none;">
+        <div style="margin-bottom: 2rem;">
+          <h2 style="font-size: 1.45rem; font-weight: 700; color: var(--text); margin-bottom: 0.35rem;">Choose Your Specialist</h2>
+          <p style="color: var(--text-secondary); font-size: 0.92rem;">Select a verified doctor for your <strong id="display-selected-service" style="color: var(--primary);"></strong> consultation.</p>
+        </div>
+
+        <!-- Gender Filter Bar -->
+        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 0.5rem 1rem;">
+          <span style="font-size: 0.82rem; font-weight: 700; color: var(--text-secondary); display: flex; align-items: center; gap: 0.25rem;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display: inline;"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+            Specialist Gender:
+          </span>
+          <div style="display: flex; gap: 0.35rem;">
+            <button type="button" class="gender-btn" id="gender-btn-all" onclick="filterDoctorsByGender('all')" style="padding: 0.3rem 0.8rem; font-size: 0.78rem; font-weight: 700; border-radius: 6px; border: 1px solid var(--primary); background: var(--primary); color: white; cursor: pointer; transition: all 0.2s; width: auto;">
+              All
+            </button>
+            <button type="button" class="gender-btn" id="gender-btn-female" onclick="filterDoctorsByGender('Female')" style="padding: 0.3rem 0.8rem; font-size: 0.78rem; font-weight: 700; border-radius: 6px; border: 1px solid var(--border); background: white; color: var(--text-secondary); cursor: pointer; transition: all 0.2s; width: auto;">
+              Female 👩‍⚕️
+            </button>
+            <button type="button" class="gender-btn" id="gender-btn-male" onclick="filterDoctorsByGender('Male')" style="padding: 0.3rem 0.8rem; font-size: 0.78rem; font-weight: 700; border-radius: 6px; border: 1px solid var(--border); background: white; color: var(--text-secondary); cursor: pointer; transition: all 0.2s; width: auto;">
+              Male 👨‍⚕️
+            </button>
+          </div>
+        </div>
+
+        <div id="doctors-container" style="display: flex; flex-direction: column; gap: 1rem;">
+          <% doctors.forEach(doc => { %>
+            <div class="doctor-select-card" 
+                 data-id="<%= doc._id %>"
+                 data-gender="<%= doc.gender || 'Male' %>"
+                 data-fee="<%= doc.consultationFee || 400 %>"
+                 data-specialization="<%= doc.specialization %>"
+                 data-availability='<%= JSON.stringify(doc.availability) %>'
+                 onclick="selectDoctor('<%= doc._id %>', '<%= doc.name %>', <%= doc.consultationFee || 400 %>)">
+              <div style="display: flex; align-items: center; gap: 1rem; flex: 1;">
+                <div style="width: 52px; height: 52px; border-radius: 12px; background: rgba(13, 148, 136, 0.06); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </div>
+                <div style="min-width: 0;">
+                  <h3 style="color: var(--text); font-size: 1.1rem; font-weight: 700; margin-bottom: 0.2rem;"><%= doc.name %></h3>
+                  <p style="color: var(--text-secondary); font-size: 0.85rem; margin: 0; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                    <%= doc.specialization %> <% if (doc.qualification) { %> · <%= doc.qualification %><% } %>
+                    <span class="badge" style="background: rgba(13, 148, 136, 0.06); color: var(--primary); font-size: 0.72rem; padding: 0.15rem 0.45rem; border-radius: 4px; font-weight: 700;">
+                      <%= doc.gender || 'Male' %>
+                    </span>
+                  </p>
+                </div>
+              </div>
+              <div style="text-align: right; flex-shrink: 0;">
+                <div style="font-size: 1.15rem; font-weight: 800; color: var(--primary);">₹<%= doc.consultationFee || 400 %></div>
+                <div style="font-size: 0.72rem; color: var(--text-muted); font-weight: 500;">per session</div>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      </div>
+
+      <!-- ============================================ -->
+      <!-- STEP 3: Select Slot & Mode                   -->
+      <!-- ============================================ -->
+      <div id="wizard-step-3" class="wizard-step" style="display: none;">
+        <div style="margin-bottom: 2rem;">
+          <h2 style="font-size: 1.45rem; font-weight: 700; color: var(--text); margin-bottom: 0.35rem;">Pick a Time Slot</h2>
+          <p style="color: var(--text-secondary); font-size: 0.92rem;">Choose an available slot and how you'd like to connect.</p>
+        </div>
+        
+        <!-- Available Slots -->
+        <div style="margin-bottom: 2rem;">
+          <label style="display: block; font-weight: 700; margin-bottom: 0.75rem; color: var(--text); font-size: 0.9rem;">
+            Available Slots for <span id="display-doc-name" style="color: var(--primary);">Selected Doctor</span>
+          </label>
+          <div id="doctor-availability-days" style="display: flex; flex-direction: column; width: 100%;">
+            <!-- Rendered via JS -->
+          </div>
+        </div>
+        
+        <!-- Consultation Mode -->
+        <div>
+          <label style="display: block; font-weight: 700; margin-bottom: 0.75rem; color: var(--text); font-size: 0.9rem;">Consultation Mode</label>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 0.75rem;">
+            <label class="mode-card selected-mode">
+              <input type="radio" name="consultationMode" value="Video Consultation" checked style="display: none;">
+              <div class="mode-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+              </div>
+              <span>Video Call</span>
+            </label>
+            <label class="mode-card">
+              <input type="radio" name="consultationMode" value="Phone Consultation" style="display: none;">
+              <div class="mode-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+              </div>
+              <span>Phone Call</span>
+            </label>
+            <label class="mode-card">
+              <input type="radio" name="consultationMode" value="Text Chat" style="display: none;">
+              <div class="mode-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              </div>
+              <span>Text Chat</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================ -->
+      <!-- STEP 4: Confirm Booking                      -->
+      <!-- ============================================ -->
+      <div id="wizard-step-4" class="wizard-step" style="display: none;">
+        <div style="margin-bottom: 2rem;">
+          <h2 style="font-size: 1.45rem; font-weight: 700; color: var(--text); margin-bottom: 0.35rem;">Review & Confirm</h2>
+          <p style="color: var(--text-secondary); font-size: 0.92rem;">Please verify your appointment details before confirming.</p>
+        </div>
+
+        <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 12px; overflow: hidden;">
+          <div class="summary-row">
+            <span>Service</span>
+            <strong id="summary-service">-</strong>
+          </div>
+          <div class="summary-row">
+            <span>Specialist</span>
+            <strong id="summary-doctor">-</strong>
+          </div>
+          <div class="summary-row">
+            <span>Scheduled Slot</span>
+            <strong id="summary-slot">-</strong>
+          </div>
+          <div class="summary-row">
+            <span>Mode</span>
+            <strong id="summary-mode">-</strong>
+          </div>
+          <div class="summary-row">
+            <span>Contact Email</span>
+            <strong id="summary-email">-</strong>
+          </div>
+          <div class="summary-row" style="border-bottom: none; background: rgba(13, 148, 136, 0.03);">
+            <span style="font-weight: 600;">Consultation Fee</span>
+            <strong id="summary-fee" style="color: var(--primary); font-size: 1.3rem;">₹0</strong>
+          </div>
+        </div>
+
+        <div style="margin-top: 1.5rem; background: rgba(245, 158, 11, 0.04); border: 1px solid rgba(245, 158, 11, 0.15); border-radius: 10px; padding: 1rem 1.25rem; display: flex; align-items: center; gap: 0.75rem;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <p style="font-size: 0.85rem; color: #92400e; margin: 0; line-height: 1.4;">Your request will be submitted. The doctor will confirm within 24 hours.</p>
+        </div>
+      </div>
+
+      <!-- Navigation Buttons -->
+      <div id="wizard-navigation" style="display: flex; justify-content: space-between; align-items: center; margin-top: 2.5rem; border-top: 1px solid var(--border); padding-top: 1.5rem;">
+        <button type="button" id="prev-btn" class="btn btn-secondary" onclick="moveStep(-1)" style="display: none; padding: 0.65rem 1.5rem; font-weight: 600; border-radius: 10px;">
+          ← Back
+        </button>
+        <div style="flex: 1;"></div>
+        <button type="button" id="next-btn" class="btn btn-primary" onclick="moveStep(1)" style="padding: 0.65rem 1.8rem; font-weight: 700; border-radius: 10px; display: none;">
+          Continue →
+        </button>
+        <button type="submit" id="submit-btn" class="btn btn-primary" style="display: none; padding: 0.65rem 2rem; font-weight: 700; border-radius: 10px; background: linear-gradient(135deg, var(--primary), #0f766e);">
+          ✓ Confirm Booking
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<%- include('../partials/booking_wizard_styles') %>
+
+<script>
+  let currentStep = 1;
+  const totalSteps = 4;
+  let selectedService = '';
+  let selectedDoctorId = '';
+  let selectedDoctorName = '';
+  let selectedFee = 400;
+  let selectedDate = '';
+  let selectedTime = '';
+
+  // STEP 1: Select service
+  function selectService(service) {
+    selectedService = service;
+    document.getElementById('hidden-service-type').value = service;
+    document.querySelectorAll('.service-card').forEach(c => c.classList.remove('selected'));
+    document.querySelector(`.service-card[data-service="${service}"]`).classList.add('selected');
+    document.getElementById('display-selected-service').textContent = service;
+    
+    const pepExp = document.getElementById('pep-exposure-container');
+    const pepAuto = document.getElementById('pep-autobook-container');
+    const nextBtn = document.getElementById('next-btn');
+
+    if (service === 'PEP') {
+      pepExp.style.display = 'block';
+      pepAuto.style.display = 'block';
+      nextBtn.style.display = 'inline-flex';
+    } else {
+      pepExp.style.display = 'none';
+      pepAuto.style.display = 'none';
+      nextBtn.style.display = 'none';
+      setTimeout(() => moveStep(1), 300);
+    }
+  }
+
+  // Event listener to automatically submit PEP exposure date when changed
+  document.getElementById('pep-exposure-input').addEventListener('change', async (e) => {
+    const val = e.target.value;
+    if (!val) return;
+    try {
+      await fetch('/patient/set-pep-exposure', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-csrf-token': '<%= csrfToken %>'
+        },
+        body: JSON.stringify({ exposureDate: val })
+      });
+    } catch(err) {
+      console.error('Failed to set PEP exposure:', err);
+    }
+  });
+
+  // Fast Auto-Book Form Submission
+  async function triggerAutoMatch() {
+    const val = document.getElementById('pep-exposure-input').value;
+    if (!val) {
+      alert('Please specify the date & time of exposure first so we can verify PEP suitability.');
+      return;
+    }
+    
+    // Save exposure time first
+    try {
+      await fetch('/patient/set-pep-exposure', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-csrf-token': '<%= csrfToken %>'
+        },
+        body: JSON.stringify({ exposureDate: val })
+      });
+    } catch(err) {
+      console.error('Failed to set PEP exposure:', err);
+    }
+
+    if (confirm('Submit emergency PEP auto-match request? You will be booked with the earliest available practitioner.')) {
+      // Submit via form to /patient/book-auto-pep
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = '/patient/book-auto-pep';
+      
+      const csrfInput = document.createElement('input');
+      csrfInput.type = 'hidden';
+      csrfInput.name = '_csrf';
+      csrfInput.value = '<%= csrfToken %>';
+      form.appendChild(csrfInput);
+
+      document.body.appendChild(form);
+      form.submit();
+    }
+  }
+
+  // STEP 2: Select doctor
+  function selectDoctor(docId, docName, fee) {
+    selectedDoctorId = docId;
+    selectedDoctorName = docName;
+    selectedFee = fee;
+    
+    document.getElementById('hidden-doctor-id').value = docId;
+    document.getElementById('hidden-amount').value = fee;
+    
+    // Highlight selected card
+    document.querySelectorAll('.doctor-select-card').forEach(c => c.classList.remove('selected'));
+    document.querySelector(`.doctor-select-card[data-id="${docId}"]`).classList.add('selected');
+    
+    // Load availability
+    const docCard = document.querySelector(`.doctor-select-card[data-id="${docId}"]`);
+    const availabilityString = docCard.getAttribute('data-availability');
+    const daysContainer = document.getElementById('doctor-availability-days');
+    daysContainer.innerHTML = '';
+
+    if (availabilityString) {
+      const availabilities = JSON.parse(availabilityString);
+      const openSlots = availabilities.filter(s => !s.isBooked);
+      if (openSlots.length === 0) {
+        daysContainer.innerHTML = '<div style="color: var(--text-muted); font-size: 0.9rem; padding: 1rem; text-align: center; border: 1px dashed var(--border); border-radius: 10px; width: 100%;">No open slots currently available for this doctor.</div>';
+      } else {
+        // Group by Date for Calendly style UI
+        const grouped = {};
+        openSlots.forEach(slot => {
+          const dateStr = slot.date.split('T')[0];
+          if (!grouped[dateStr]) grouped[dateStr] = [];
+          grouped[dateStr].push(slot);
+        });
+
+        const datesContainer = document.createElement('div');
+        datesContainer.style = 'display: flex; gap: 0.75rem; overflow-x: auto; padding-bottom: 0.5rem; width: 100%; margin-bottom: 0.5rem;';
+        
+        const timesContainer = document.createElement('div');
+        timesContainer.id = 'times-container';
+        timesContainer.style = 'display: flex; gap: 0.75rem; flex-wrap: wrap; width: 100%;';
+
+        daysContainer.appendChild(datesContainer);
+        daysContainer.appendChild(timesContainer);
+
+        Object.keys(grouped).forEach(dateStr => {
+          const dt = new Date(dateStr);
+          const dayName = dt.toLocaleDateString('en-US', { weekday: 'short' });
+          const dayNum = dt.getDate();
+          const monthName = dt.toLocaleDateString('en-US', { month: 'short' });
+
+          const dateBtn = document.createElement('div');
+          dateBtn.className = 'date-card';
+          dateBtn.style = 'display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 75px; padding: 0.75rem 1rem; border: 1px solid var(--border); border-radius: 12px; cursor: pointer; transition: all 0.2s; background: white; user-select: none;';
+          dateBtn.innerHTML = `
+            <div style="font-size: 0.75rem; text-transform: uppercase; font-weight: 600; color: var(--text-secondary); margin-bottom: 0.2rem; pointer-events: none;">${dayName}</div>
+            <div style="font-size: 1.4rem; font-weight: 800; color: var(--text); line-height: 1; pointer-events: none;">${dayNum}</div>
+            <div style="font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); margin-top: 0.2rem; pointer-events: none;">${monthName}</div>
+          `;
+
+          dateBtn.onclick = function(e) {
+            e.stopPropagation();
+            document.querySelectorAll('.date-card').forEach(b => {
+              b.style.borderColor = 'var(--border)';
+              b.style.background = 'white';
+            });
+            dateBtn.style.borderColor = 'var(--primary)';
+            dateBtn.style.background = 'rgba(13, 148, 136, 0.06)';
+            
+            // Clear times and reset selection
+            timesContainer.innerHTML = '';
+            selectedDate = dateStr;
+            selectedTime = ''; 
+            document.getElementById('hidden-date').value = '';
+            document.getElementById('hidden-time').value = '';
+
+            grouped[dateStr].forEach(slot => {
+              const timeBtn = document.createElement('div');
+              timeBtn.className = 'time-pill';
+              timeBtn.style = 'padding: 0.65rem 1.25rem; border: 1px solid var(--border); border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s; background: white; color: var(--text); font-size: 0.9rem; user-select: none;';
+              timeBtn.innerHTML = `🕒 ${slot.time}`;
+              
+              timeBtn.onclick = function(ev) {
+                ev.stopPropagation();
+                document.querySelectorAll('.time-pill').forEach(b => {
+                  b.style.background = 'white';
+                  b.style.color = 'var(--text)';
+                  b.style.borderColor = 'var(--border)';
+                });
+                timeBtn.style.background = 'var(--primary)';
+                timeBtn.style.color = 'white';
+                timeBtn.style.borderColor = 'var(--primary)';
+                
+                selectedTime = slot.time;
+                document.getElementById('hidden-date').value = selectedDate;
+                document.getElementById('hidden-time').value = selectedTime;
+              };
+              timesContainer.appendChild(timeBtn);
+            });
+          };
+          datesContainer.appendChild(dateBtn);
+        });
+      }
+    }
+
+    document.getElementById('display-doc-name').textContent = docName;
+    moveStep(1);
+  }
+
+  // Mode card selection
+  document.querySelectorAll('.mode-card').forEach(card => {
+    card.addEventListener('click', () => {
+      document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('selected-mode'));
+      card.classList.add('selected-mode');
+      card.querySelector('input[type="radio"]').checked = true;
+    });
+  });
+
+  function moveStep(direction) {
+    if (direction === 1) {
+      if (currentStep === 1 && !selectedService) {
+        alert('Please select a service first.');
+        return;
+      }
+      if (currentStep === 2 && !selectedDoctorId) {
+        alert('Please choose a doctor.');
+        return;
+      }
+      if (currentStep === 3) {
+        if (!selectedDate || !selectedTime) {
+          alert('Please select an available slot.');
+          return;
+        }
+        // Build summary
+        const selectedMode = document.querySelector('input[name="consultationMode"]:checked').value;
+        document.getElementById('summary-service').innerText = selectedService;
+        document.getElementById('summary-doctor').innerText = selectedDoctorName;
+        document.getElementById('summary-slot').innerText = `${selectedDate} at ${selectedTime}`;
+        document.getElementById('summary-mode').innerText = selectedMode;
+        document.getElementById('summary-email').innerText = document.getElementById('hidden-contact-value').value || '<%= currentUser.email %>';
+        document.getElementById('summary-fee').innerText = `₹${selectedFee}`;
+      }
+    }
+
+    document.getElementById(`wizard-step-${currentStep}`).style.display = 'none';
+    currentStep += direction;
+    document.getElementById(`wizard-step-${currentStep}`).style.display = 'block';
+    updateStepperUI();
+  }
+
+  function updateStepperUI() {
+    const titles = [
+      "Step 1 of 4 — Select Service",
+      "Step 2 of 4 — Choose Specialist",
+      "Step 3 of 4 — Pick Time Slot",
+      "Step 4 of 4 — Review & Confirm"
+    ];
+    document.getElementById('step-subtitle').innerText = titles[currentStep - 1];
+
+    for (let i = 1; i <= totalSteps; i++) {
+      const stepEl = document.getElementById(`progress-${i}`);
+      stepEl.classList.remove('active', 'completed');
+      if (i === currentStep) stepEl.classList.add('active');
+      else if (i < currentStep) stepEl.classList.add('completed');
+    }
+    for (let i = 1; i < totalSteps; i++) {
+      document.getElementById(`progress-line-${i}`).classList.toggle('active', i < currentStep);
+    }
+
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const submitBtn = document.getElementById('submit-btn');
+
+    prevBtn.style.display = currentStep > 1 ? 'inline-flex' : 'none';
+    if (currentStep === totalSteps) {
+      nextBtn.style.display = 'none';
+      submitBtn.style.display = 'inline-flex';
+    } else {
+      // Show Continue on step 3 only (steps 1 & 2 auto-advance on selection)
+      nextBtn.style.display = currentStep === 3 ? 'inline-flex' : 'none';
+      submitBtn.style.display = 'none';
+    }
+  }
+
+  // Filter doctors list by gender
+  function filterDoctorsByGender(gender) {
+    // 1. Reset button styles
+    const buttons = {
+      'all': document.getElementById('gender-btn-all'),
+      'Female': document.getElementById('gender-btn-female'),
+      'Male': document.getElementById('gender-btn-male')
+    };
+
+    Object.keys(buttons).forEach(key => {
+      const btn = buttons[key];
+      if (!btn) return;
+      if (key === gender) {
+        btn.style.background = 'var(--primary)';
+        btn.style.color = 'white';
+        btn.style.borderColor = 'var(--primary)';
+      } else {
+        btn.style.background = 'white';
+        btn.style.color = 'var(--text-secondary)';
+        btn.style.borderColor = 'var(--border)';
+      }
+    });
+
+    // 2. Hide/show cards
+    let visibleCount = 0;
+    document.querySelectorAll('.doctor-select-card').forEach(card => {
+      const docGender = card.getAttribute('data-gender');
+      if (gender === 'all' || docGender === gender) {
+        card.style.display = 'flex';
+        visibleCount++;
+      } else {
+        card.style.display = 'none';
+      }
+    });
+
+    // 3. Handle empty state if no doctors fit
+    const container = document.getElementById('doctors-container');
+    let emptyMsg = document.getElementById('gender-empty-message');
+    if (visibleCount === 0) {
+      if (!emptyMsg) {
+        emptyMsg = document.createElement('div');
+        emptyMsg.id = 'gender-empty-message';
+        emptyMsg.style = 'color: var(--text-muted); font-size: 0.9rem; padding: 2rem; text-align: center; border: 1px dashed var(--border); border-radius: 12px; width: 100%;';
+        emptyMsg.innerText = 'No specialists of the selected gender are currently registered.';
+        container.appendChild(emptyMsg);
+      } else {
+        emptyMsg.style.display = 'block';
+      }
+    } else if (emptyMsg) {
+      emptyMsg.style.display = 'none';
+    }
+  }
+</script>
+
+<%- include('../partials/footer') %>

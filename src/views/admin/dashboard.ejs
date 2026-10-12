@@ -1,0 +1,647 @@
+<%- include('../partials/header') %>
+
+  <style>
+    main {
+      max-width: 1200px !important;
+      padding: 2rem 1.5rem !important;
+      margin: 0 auto;
+    }
+  </style>
+
+  <div style="max-width: 100%; margin: 0 auto; width: 100%;">
+
+  <!-- Header Section -->
+  <div class="dashboard-header admin-dashboard-header"
+    style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem; margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border);">
+      <div style="flex: 1 1 auto; min-width: 280px;">
+        <h1 class="dashboard-title"
+          style="font-size: 2rem; font-weight: 800; color: var(--text); letter-spacing: -0.03em; margin: 0 0 0.35rem 0;">
+          Administrative Operations
+        </h1>
+        <p class="dashboard-welcome"
+          style="color: var(--text-secondary); font-size: 0.92rem; margin: 0; max-width: 600px; line-height: 1.45;">
+          Verify credentials, approve practitioner accounts, and manage preventive resource guides.
+        </p>
+      </div>
+
+      <!-- Action Button / Badge on Right -->
+      <div style="flex: 0 0 auto; display: flex; align-items: center; gap: 1rem;">
+        <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.15); border-radius: 8px; padding: 0.5rem 1rem; font-weight: 700; font-size: 0.85rem; color: #10b981; display: flex; align-items: center; gap: 0.4rem;">
+          <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #10b981; animation: pulse 2s infinite;"></span>
+          Admin Session Active
+        </div>
+      </div>
+  </div>
+
+  <!-- Key Metrics Row (Active Doctors, Pending Approvals, Published Articles) -->
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2.5rem;">
+    <div class="admin-card-metric" style="padding: 1.25rem; display: flex; align-items: center; gap: 1rem; border-radius: 12px; border: 1px solid var(--border); background: var(--card-bg);">
+      <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(13, 148, 136, 0.08); color: var(--primary); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.8 2.3A.3.3 0 0 0 4.5 2h-1a.5.5 0 0 0-.5.5v5a5 5 0 0 0 5 5h0a5 5 0 0 0 5-5v-5a.5.5 0 0 0-.5-.5h-1a.3.3 0 0 0-.3.3v5a3 3 0 0 1-3 3h0a3 3 0 0 1-3-3v-5z"/><path d="M8 12v3a5 5 0 0 0 5 5h2a3 3 0 0 0 3-3v-3.5"/><circle cx="18" cy="10" r="2"/></svg>
+      </div>
+      <div>
+        <div style="font-size: 1.75rem; font-weight: 800; color: var(--text); line-height: 1.1; letter-spacing: -0.02em;"><%= doctors.length %></div>
+        <div style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600; margin-top: 0.2rem; text-transform: uppercase; letter-spacing: 0.02em;">Total Practitioners</div>
+      </div>
+    </div>
+
+    <div class="admin-card-metric" style="padding: 1.25rem; display: flex; align-items: center; gap: 1rem; border-radius: 12px; border: 1px solid var(--border); background: var(--card-bg);">
+      <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(245, 158, 11, 0.08); color: #d97706; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      </div>
+      <div>
+        <div style="font-size: 1.75rem; font-weight: 800; color: var(--text); line-height: 1.1; letter-spacing: -0.02em;"><%= pendingCount %></div>
+        <div style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600; margin-top: 0.2rem; text-transform: uppercase; letter-spacing: 0.02em;">Pending Review</div>
+      </div>
+    </div>
+
+    <div class="admin-card-metric" style="padding: 1.25rem; display: flex; align-items: center; gap: 1rem; border-radius: 12px; border: 1px solid var(--border); background: var(--card-bg);">
+      <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(37, 99, 235, 0.08); color: #2563eb; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+      </div>
+      <div>
+        <div style="font-size: 1.75rem; font-weight: 800; color: var(--text); line-height: 1.1; letter-spacing: -0.02em;"><%= articlesCount %></div>
+        <div style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600; margin-top: 0.2rem; text-transform: uppercase; letter-spacing: 0.02em;">Published Guides</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs Navigation (Doctors, Revenue & Diagnostics, and Guides) -->
+  <div class="admin-tab-bar" style="margin-bottom: 2.5rem; background: rgba(15, 23, 42, 0.03); padding: 0.4rem; border-radius: 12px; border: 1px solid var(--border); display: inline-flex; width: 100%; max-width: 660px; box-sizing: border-box;">
+    <button id="admin-tab-docs" class="admin-tab-btn active" onclick="switchAdminTab('docs')" style="display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/></svg>
+      Practitioners
+    </button>
+    <button id="admin-tab-revenue" class="admin-tab-btn" onclick="switchAdminTab('revenue')" style="display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+      Revenue & Diagnostics
+    </button>
+    <button id="admin-tab-blog" class="admin-tab-btn" onclick="switchAdminTab('blog')" style="display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      Publish Guide
+    </button>
+  </div>
+
+  <!-- PANELS -->
+
+  <!-- SECTION 1: Manage Doctors (Table Layout) -->
+  <div id="admin-panel-docs" class="dashboard-panel active">
+    
+    <!-- Doctors section subheader with manual register button -->
+    <div style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+      <div>
+        <h2 style="color: var(--text); font-size: 1.35rem; font-weight: 800; margin: 0; letter-spacing: -0.02em;">Clinical Practitioners Directory</h2>
+        <p style="color: var(--text-secondary); font-size: 0.88rem; margin-top: 0.25rem;">Review credentials and update account status values.</p>
+      </div>
+      <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+        <button onclick="exportTableToCSV('practitioners_directory.csv')" class="btn btn-secondary" style="padding: 0.55rem 1rem; font-weight: 700; font-size: 0.82rem; border-radius: 8px; display: inline-flex; align-items: center; gap: 0.4rem; background: var(--card-bg); border: 1px solid var(--border);">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Export Directory CSV
+        </button>
+        <button onclick="openRegisterModal()" class="btn btn-primary" style="padding: 0.55rem 1rem; font-weight: 700; font-size: 0.82rem; border-radius: 8px; display: inline-flex; align-items: center; gap: 0.4rem; background: var(--primary); box-shadow: 0 4px 10px rgba(13, 148, 136, 0.12);">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="17" y1="11" x2="23" y2="11"/></svg>
+          Add Specialist
+        </button>
+      </div>
+    </div>
+
+    <!-- TABLE LAYOUT FOR PRACTITIONERS -->
+    <div class="card-premium" style="border-radius: 14px; padding: 0.75rem; border: 1px solid var(--border); background: var(--card-bg); margin-bottom: 3.5rem; overflow: hidden;">
+      <% if (doctors && doctors.length > 0) { %>
+        <div class="table-responsive" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+          <table id="doctors-table" class="admin-table" style="width: 100%; border-collapse: collapse; min-width: 850px;">
+            <thead>
+              <tr style="border-bottom: 2px solid var(--border); font-size: 0.75rem; text-transform: uppercase; color: var(--text-secondary); font-weight: 700;">
+                <th style="padding: 1rem 1.25rem; text-align: left;">Specialist Name</th>
+                <th style="padding: 1rem 1rem; text-align: left;">Category / Specialty</th>
+                <th style="padding: 1rem 1rem; text-align: left;">Gender</th>
+                <th style="padding: 1rem 1rem; text-align: left;">Verification</th>
+                <th style="padding: 1rem 1.25rem; text-align: right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% doctors.forEach(doc => { %>
+                <%
+                  let specColor = '#0d9488';
+                  let specSvg = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>';
+                  const specLower = (doc.specialization || '').toLowerCase();
+                  if (specLower.includes('cardio')) {
+                    specColor = '#dc2626';
+                    specSvg = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.72-8.72 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/><polyline points="3 12 8 12 10 8 14 16 16 12 21 12"/></svg>';
+                  } else if (specLower.includes('derma')) {
+                    specColor = '#7c3aed';
+                    specSvg = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>';
+                  } else if (specLower.includes('pedia')) {
+                    specColor = '#2563eb';
+                    specSvg = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>';
+                  } else if (specLower.includes('neuro')) {
+                    specColor = '#9333ea';
+                    specSvg = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 0 0-10 10c0 5.5 4.5 10 10 10s10-4.5 10-10A10 10 0 0 0 12 2z"/><path d="M12 6v6l4 2"/></svg>';
+                  } else if (specLower.includes('ortho')) {
+                    specColor = '#d97706';
+                    specSvg = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/><path d="M15 3v18"/></svg>';
+                  } else if (specLower.includes('general') || specLower.includes('medicine')) {
+                    specColor = '#059669';
+                    specSvg = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.5 20.5L3.5 13.5A5 5 0 0 1 10.5 6.5L17.5 13.5A5 5 0 0 1 10.5 20.5z"/><line x1="7" y1="10" x2="14" y2="17"/></svg>';
+                  }
+                %>
+                <tr class="admin-table-row" style="border-bottom: 1px solid var(--border); font-size: 0.92rem; transition: background 0.15s; cursor: pointer;" onclick="window.location.href='/admin/doctor/<%= doc._id %>/details'">
+                  <td style="padding: 1rem 1.25rem;">
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                      <div style="width: 36px; height: 36px; border-radius: 50%; background: rgba(13, 148, 136, 0.08); display: flex; align-items: center; justify-content: center; color: var(--primary); font-size: 1rem; flex-shrink: 0; font-weight: 700;">
+                        <%= doc.name.charAt(0) || 'D' %>
+                      </div>
+                      <div>
+                        <strong style="color: var(--text); font-weight: 700; font-size: 0.92rem;"><%= doc.name %></strong>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.1rem;"><%= doc.email %></div>
+                      </div>
+                    </div>
+                  </td>
+                  <td style="padding: 1rem 1rem;">
+                    <span style="display: inline-flex; align-items: center; gap: 0.4rem; background: rgba(15, 23, 42, 0.04); color: var(--text); padding: 0.25rem 0.65rem; border-radius: 6px; font-size: 0.8rem; font-weight: 600;">
+                      <span style="color: <%= specColor %>; display: flex; align-items: center;"><%- specSvg %></span>
+                      <%= doc.specialization %>
+                    </span>
+                  </td>
+                  <td style="padding: 1rem 1rem; color: var(--text-secondary); font-size: 0.85rem;">
+                    <%= doc.gender || 'Not Specified' %>
+                  </td>
+                  <td style="padding: 1rem 1rem;">
+                    <% if (doc.isApproved) { %>
+                      <span style="color: #10b981; font-weight: 700; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 0.3rem;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        Approved
+                      </span>
+                    <% } else { %>
+                      <span style="color: #f59e0b; font-weight: 700; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 0.3rem;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        Pending Review
+                      </span>
+                    <% } %>
+                  </td>
+                  <td style="padding: 1rem 1.25rem; text-align: right;" onclick="event.stopPropagation();">
+                    <form action="/admin/doctor/approval" method="POST" style="margin: 0; display: inline-block;">
+                      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                      <input type="hidden" name="doctorId" value="<%= doc._id %>">
+                      <% if (doc.isApproved) { %>
+                        <input type="hidden" name="action" value="disapprove">
+                        <button type="submit" class="btn btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.75rem; font-weight: 700; border-radius: 6px; color: #ef4444; border-color: rgba(239,68,68,0.2);">
+                          Revoke
+                        </button>
+                      <% } else { %>
+                        <input type="hidden" name="action" value="approve">
+                        <button type="submit" class="btn btn-primary" style="padding: 0.35rem 0.75rem; font-size: 0.75rem; font-weight: 700; border-radius: 6px; background: #10b981;">
+                          Approve Account
+                        </button>
+                      <% } %>
+                    </form>
+                  </td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+      <% } else { %>
+        <div style="text-align: center; padding: 3rem 1.5rem;">
+          <p style="color: var(--text-secondary); font-size: 0.95rem; margin: 0;">No medical practitioner accounts registered.</p>
+        </div>
+      <% } %>
+    </div>
+  </div>
+
+  <!-- SECTION 2: Dedicated Financial Revenue & System Diagnostics Tab -->
+  <div id="admin-panel-revenue" class="dashboard-panel" style="display: none;">
+    <div style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+      <div>
+        <h2 style="color: var(--text); font-size: 1.35rem; font-weight: 800; margin: 0; letter-spacing: -0.02em; display: flex; align-items: center; gap: 0.5rem;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="color: var(--primary);"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          Financial Revenue & System Diagnostics Center
+        </h2>
+        <p style="color: var(--text-secondary); font-size: 0.88rem; margin-top: 0.25rem;">
+          Consolidated platform revenue analytics, WhatsApp AI gateway health, and doctor payout matrix.
+        </p>
+      </div>
+      <button onclick="exportRevenueTableToCSV('doctor_earnings_report.csv')" class="btn btn-primary" style="padding: 0.55rem 1rem; font-weight: 700; font-size: 0.82rem; border-radius: 8px; display: inline-flex; align-items: center; gap: 0.4rem; background: #0d9488; box-shadow: 0 4px 10px rgba(13, 148, 136, 0.12);">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Export Revenue CSV
+      </button>
+    </div>
+
+    <!-- Financial Revenue & System Health Widget Row -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+      <!-- Financial Metrics Card -->
+      <div class="card-premium" style="background: linear-gradient(135deg, rgba(13, 148, 136, 0.05) 0%, rgba(37, 99, 235, 0.05) 100%); border: 1px solid rgba(13, 148, 136, 0.2); border-radius: 14px; padding: 1.25rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+          <h3 style="margin: 0; font-size: 0.95rem; font-weight: 800; color: var(--text); display: flex; align-items: center; gap: 0.4rem;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--primary);"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            Platform Financial Split
+          </h3>
+          <span style="font-size: 0.7rem; font-weight: 700; background: rgba(13, 148, 136, 0.1); color: var(--primary); padding: 0.15rem 0.5rem; border-radius: 6px;">20% Platform Cut</span>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; text-align: center;">
+          <div style="background: var(--card-bg); border: 1px solid var(--border); padding: 0.6rem; border-radius: 8px;">
+            <span style="font-size: 0.68rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 700; display: block;">Gross Revenue</span>
+            <strong style="font-size: 1.15rem; color: var(--text); font-weight: 800;">₹<%= (typeof financials !== 'undefined' ? financials.grossRevenue : 0).toLocaleString() %></strong>
+          </div>
+          <div style="background: var(--card-bg); border: 1px solid var(--border); padding: 0.6rem; border-radius: 8px;">
+            <span style="font-size: 0.68rem; color: var(--primary); text-transform: uppercase; font-weight: 700; display: block;">SaaS Commission</span>
+            <strong style="font-size: 1.15rem; color: var(--primary); font-weight: 800;">₹<%= (typeof financials !== 'undefined' ? financials.platformCommission : 0).toLocaleString() %></strong>
+          </div>
+          <div style="background: var(--card-bg); border: 1px solid var(--border); padding: 0.6rem; border-radius: 8px;">
+            <span style="font-size: 0.68rem; color: #2563eb; text-transform: uppercase; font-weight: 700; display: block;">Doctor Payouts</span>
+            <strong style="font-size: 1.15rem; color: #2563eb; font-weight: 800;">₹<%= (typeof financials !== 'undefined' ? financials.doctorPayoutLiability : 0).toLocaleString() %></strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- WhatsApp Bot Health Diagnostics Widget -->
+      <div class="card-premium" style="background: linear-gradient(135deg, rgba(34, 197, 94, 0.05) 0%, rgba(16, 185, 129, 0.05) 100%); border: 1px solid rgba(34, 197, 94, 0.2); border-radius: 14px; padding: 1.25rem; display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+            <h3 style="margin: 0; font-size: 0.95rem; font-weight: 800; color: var(--text); display: flex; align-items: center; gap: 0.4rem;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: #16a34a;"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+              WhatsApp AI Gateway Health
+            </h3>
+            <% const isConnected = typeof botDiagnostics !== 'undefined' && botDiagnostics.isConnected; %>
+            <span style="font-size: 0.7rem; font-weight: 700; background: <%= isConnected ? 'rgba(34, 197, 94, 0.15)' : 'rgba(239, 68, 68, 0.15)' %>; color: <%= isConnected ? '#16a34a' : '#dc2626' %>; padding: 0.15rem 0.5rem; border-radius: 6px; display: inline-flex; align-items: center; gap: 0.3rem;">
+              <span style="width: 6px; height: 6px; border-radius: 50%; background: <%= isConnected ? '#16a34a' : '#dc2626' %>;"></span>
+              <%= isConnected ? 'OPERATIONAL' : 'OFFLINE' %>
+            </span>
+          </div>
+          <p style="font-size: 0.82rem; color: var(--text-secondary); margin: 0 0 0.5rem 0;">
+            Provider: <strong><%= typeof botDiagnostics !== 'undefined' ? botDiagnostics.provider : 'Simulation Mode' %></strong>
+          </p>
+          <div style="font-size: 0.8rem; color: var(--text); font-weight: 600; background: var(--card-bg); border: 1px solid var(--border); padding: 0.4rem 0.75rem; border-radius: 6px;">
+            Status: <%= typeof botDiagnostics !== 'undefined' ? botDiagnostics.statusMessage : 'Active' %>
+          </div>
+        </div>
+        <div style="margin-top: 0.75rem; display: flex; justify-content: flex-end;">
+          <button onclick="alert('WhatsApp AI Gateway service is running normally.')" class="btn" style="background: var(--card-bg); border: 1px solid var(--border); color: var(--text-secondary); font-size: 0.75rem; font-weight: 600; padding: 0.3rem 0.75rem; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 0.3rem;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+            Diagnostic Check
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Doctor Revenue & Earnings Table -->
+    <div class="card-premium" style="border-radius: 14px; padding: 0.75rem; border: 1px solid var(--border); background: var(--card-bg); margin-bottom: 3.5rem; overflow: hidden;">
+      <% if (doctors && doctors.length > 0) { %>
+        <div class="table-responsive" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+          <table id="revenue-table" class="admin-table" style="width: 100%; border-collapse: collapse; min-width: 900px;">
+            <thead>
+              <tr style="border-bottom: 2px solid var(--border); font-size: 0.75rem; text-transform: uppercase; color: var(--text-secondary); font-weight: 700;">
+                <th style="padding: 1rem 1.25rem; text-align: left;">Practitioner Name & Specialty</th>
+                <th style="padding: 1rem 1rem; text-align: center;">Consultations</th>
+                <th style="padding: 1rem 1rem; text-align: right;">Fee / Visit</th>
+                <th style="padding: 1rem 1rem; text-align: right;">Gross Revenue</th>
+                <th style="padding: 1rem 1rem; text-align: right; color: var(--primary);">Platform Fee (20%)</th>
+                <th style="padding: 1rem 1.25rem; text-align: right; color: #2563eb;">Net Doctor Payout (80%)</th>
+                <th style="padding: 1rem 1rem; text-align: center;">Payout Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% doctors.forEach(doc => { %>
+                <%
+                  let specColor = '#0d9488';
+                  let specSvg = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>';
+                  const specLower = (doc.specialization || '').toLowerCase();
+                  if (specLower.includes('cardio')) {
+                    specColor = '#dc2626';
+                    specSvg = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.72-8.72 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/><polyline points="3 12 8 12 10 8 14 16 16 12 21 12"/></svg>';
+                  } else if (specLower.includes('derma')) {
+                    specColor = '#7c3aed';
+                    specSvg = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>';
+                  } else if (specLower.includes('pedia')) {
+                    specColor = '#2563eb';
+                    specSvg = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>';
+                  } else if (specLower.includes('neuro')) {
+                    specColor = '#9333ea';
+                    specSvg = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 0 0-10 10c0 5.5 4.5 10 10 10s10-4.5 10-10A10 10 0 0 0 12 2z"/><path d="M12 6v6l4 2"/></svg>';
+                  } else if (specLower.includes('ortho')) {
+                    specColor = '#d97706';
+                    specSvg = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/><path d="M15 3v18"/></svg>';
+                  } else if (specLower.includes('general') || specLower.includes('medicine')) {
+                    specColor = '#059669';
+                    specSvg = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.5 20.5L3.5 13.5A5 5 0 0 1 10.5 6.5L17.5 13.5A5 5 0 0 1 10.5 20.5z"/><line x1="7" y1="10" x2="14" y2="17"/></svg>';
+                  }
+
+                  const gross = doc.grossEarnings || 0;
+                  const cut = doc.platformCut || 0;
+                  const net = doc.netPayout || 0;
+                %>
+                <tr class="admin-table-row" style="border-bottom: 1px solid var(--border); font-size: 0.92rem;">
+                  <td style="padding: 1rem 1.25rem;">
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                      <div style="width: 36px; height: 36px; border-radius: 50%; background: rgba(13, 148, 136, 0.08); display: flex; align-items: center; justify-content: center; color: <%= specColor %>; flex-shrink: 0;">
+                        <%- specSvg %>
+                      </div>
+                      <div>
+                        <strong style="color: var(--text); font-weight: 700;"><%= doc.name %></strong>
+                        <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.1rem;"><%= doc.specialization %> • <%= doc.qualification %></div>
+                      </div>
+                    </div>
+                  </td>
+                  <td style="padding: 1rem 1rem; text-align: center; font-weight: 700; color: var(--text);">
+                    <%= doc.completedAppointments %> / <%= doc.totalAppointments %>
+                  </td>
+                  <td style="padding: 1rem 1rem; text-align: right; color: var(--text-secondary); font-weight: 600;">
+                    ₹<%= (doc.consultationFee || doc.feePerConsultation || 500).toLocaleString() %>
+                  </td>
+                  <td style="padding: 1rem 1rem; text-align: right; font-weight: 800; color: var(--text);">
+                    ₹<%= gross.toLocaleString() %>
+                  </td>
+                  <td style="padding: 1rem 1rem; text-align: right; font-weight: 800; color: var(--primary);">
+                    ₹<%= cut.toLocaleString() %>
+                  </td>
+                  <td style="padding: 1rem 1.25rem; text-align: right; font-weight: 800; color: #2563eb;">
+                    ₹<%= net.toLocaleString() %>
+                  </td>
+                  <td style="padding: 1rem 1rem; text-align: center;">
+                    <% if (net > 0) { %>
+                      <span style="background: rgba(16, 185, 129, 0.1); color: #16a34a; font-weight: 700; font-size: 0.75rem; padding: 0.25rem 0.6rem; border-radius: 6px; display: inline-flex; align-items: center; gap: 0.3rem;">
+                        <span style="width: 6px; height: 6px; border-radius: 50%; background: #16a34a;"></span> Payout Ready
+                      </span>
+                    <% } else { %>
+                      <span style="background: rgba(100, 116, 139, 0.1); color: #64748b; font-weight: 600; font-size: 0.75rem; padding: 0.25rem 0.6rem; border-radius: 6px;">
+                        No Revenue Yet
+                      </span>
+                    <% } %>
+                  </td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+      <% } else { %>
+        <div style="text-align: center; padding: 3rem 1.5rem;">
+          <p style="color: var(--text-secondary); font-size: 0.95rem; margin: 0;">No financial records to display.</p>
+        </div>
+      <% } %>
+    </div>
+  </div>
+
+  <!-- SECTION 3: Write Article -->
+  <div id="admin-panel-blog" class="dashboard-panel" style="display: none;">
+    <div class="card-premium" style="border-radius: 14px; padding: 2rem; border: 1px solid var(--border); background: var(--card-bg);">
+      <h2 style="color: var(--text); font-size: 1.3rem; font-weight: 800; margin-top: 0; margin-bottom: 0.5rem; letter-spacing: -0.02em;">✍&nbsp; Publish Preventive Guide</h2>
+      <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 2rem;">The guide article will instantly become live in the main educational preventatives directory.</p>
+
+      <form action="/admin/blog/create" method="POST" style="display: flex; flex-direction: column; gap: 1.25rem; max-width: 800px;">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        
+        <div class="form-group" style="display: flex; flex-direction: column; gap: 0.4rem;">
+          <label for="title" style="font-size: 0.82rem; font-weight: 700; color: var(--text);">Article Title</label>
+          <input type="text" name="title" id="title" class="form-control" placeholder="e.g. Navigating HIV Stigma" required style="border-radius: 8px; padding: 0.65rem 0.85rem; border: 1px solid var(--border);">
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.25rem;">
+          <div class="form-group" style="display: flex; flex-direction: column; gap: 0.4rem;">
+            <label for="category" style="font-size: 0.82rem; font-weight: 700; color: var(--text);">Category</label>
+            <select name="category" id="category" class="form-control" required style="width: 100%; border-radius: 8px; padding: 0.65rem 0.85rem; background: var(--bg); border: 1px solid var(--border);">
+              <option value="PEP">PEP</option>
+              <option value="PrEP">PrEP</option>
+              <option value="General Health">General Health</option>
+            </select>
+          </div>
+          <div class="form-group" style="display: flex; flex-direction: column; gap: 0.4rem;">
+            <label for="author" style="font-size: 0.82rem; font-weight: 700; color: var(--text);">Author Designation</label>
+            <input type="text" name="author" id="author" class="form-control" placeholder="Dr. Vikram Sen, MD" required style="border-radius: 8px; padding: 0.65rem 0.85rem; border: 1px solid var(--border);">
+          </div>
+        </div>
+
+        <div class="form-group" style="display: flex; flex-direction: column; gap: 0.4rem;">
+          <label for="summary" style="font-size: 0.82rem; font-weight: 700; color: var(--text);">Summary Description</label>
+          <input type="text" name="summary" id="summary" class="form-control" placeholder="A single sentence summary used for the grid teaser..." required style="border-radius: 8px; padding: 0.65rem 0.85rem; border: 1px solid var(--border);">
+        </div>
+
+        <div class="form-group" style="display: flex; flex-direction: column; gap: 0.4rem;">
+          <label for="content" style="font-size: 0.82rem; font-weight: 700; color: var(--text);">Article Body (Supports HTML markup)</label>
+          <textarea name="content" id="content" rows="8" class="form-control" placeholder="<h2>Your Heading</h2><p>Write your detailed article body paragraphs here...</p>" required style="resize: vertical; border-radius: 8px; padding: 0.65rem 0.85rem; border: 1px solid var(--border);"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="align-self: flex-start; padding: 0.65rem 1.75rem; font-weight: 700; font-size: 0.85rem; border-radius: 8px; background: var(--primary);">
+          Publish Preventive Guide
+        </button>
+      </form>
+    </div>
+  </div>
+
+  </div>
+
+  <!-- MODERN MODAL OVERLAY FOR REGISTERING NEW DOCTORS -->
+  <div id="register-doctor-modal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); z-index: 9999; align-items: center; justify-content: center; padding: 1.5rem; transition: opacity 0.3s ease;">
+    <div style="background: var(--card-bg); width: 100%; max-width: 600px; border-radius: 14px; border: 1px solid var(--border); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); overflow: hidden; display: flex; flex-direction: column;">
+      
+      <!-- Modal Header -->
+      <!-- Modal Header -->
+      <div style="padding: 1.25rem 1.75rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: var(--bg);">
+        <div>
+          <h3 style="margin: 0; font-size: 1.15rem; font-weight: 800; color: var(--text);">Register Medical Specialist</h3>
+          <p style="margin: 0.2rem 0 0 0; font-size: 0.82rem; color: var(--text-secondary);">Directly onboard practitioner accounts into the Sparsh network.</p>
+        </div>
+        <button onclick="closeRegisterModal()" style="background: transparent; border: none; font-size: 1.2rem; cursor: pointer; color: var(--text-secondary); padding: 0.2rem 0.5rem;">✕</button>
+      </div>
+
+      <!-- Modal Body Form -->
+      <form action="/admin/doctor/create" method="POST">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <div style="padding: 1.75rem; display: flex; flex-direction: column; gap: 1.1rem;">
+          
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem;">
+            <div class="form-group" style="display: flex; flex-direction: column; gap: 0.4rem;">
+              <label for="doc-name" style="font-size: 0.8rem; font-weight: 700; color: var(--text);">Doctor Full Name</label>
+              <input type="text" name="name" id="doc-name" class="form-control" placeholder="Dr. Rohan Verma" required style="border-radius: 8px; padding: 0.65rem 0.85rem; border: 1px solid var(--border);">
+            </div>
+            <div class="form-group" style="display: flex; flex-direction: column; gap: 0.4rem;">
+              <label for="doc-email" style="font-size: 0.8rem; font-weight: 700; color: var(--text);">Email Address</label>
+              <input type="email" name="email" id="doc-email" class="form-control" placeholder="rohan@sparsh.org" required style="border-radius: 8px; padding: 0.65rem 0.85rem; border: 1px solid var(--border);">
+            </div>
+          </div>
+          
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem;">
+            <div class="form-group" style="display: flex; flex-direction: column; gap: 0.4rem;">
+              <label for="doc-specialization" style="font-size: 0.8rem; font-weight: 700; color: var(--text);">Specialization</label>
+              <input type="text" name="specialization" id="doc-specialization" class="form-control" placeholder="Infectious Disease" required style="border-radius: 8px; padding: 0.65rem 0.85rem; border: 1px solid var(--border);">
+            </div>
+            <div class="form-group" style="display: flex; flex-direction: column; gap: 0.4rem;">
+              <label for="doc-gender" style="font-size: 0.8rem; font-weight: 700; color: var(--text);">Gender</label>
+              <select name="gender" id="doc-gender" class="form-control" required style="border-radius: 8px; padding: 0.65rem 0.85rem; background: var(--bg); border: 1px solid var(--border);">
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="form-group" style="display: flex; flex-direction: column; gap: 0.4rem;">
+              <label for="doc-qualification" style="font-size: 0.8rem; font-weight: 700; color: var(--text);">Qualifications</label>
+              <input type="text" name="qualification" id="doc-qualification" class="form-control" placeholder="MBBS, MD" required style="border-radius: 8px; padding: 0.65rem 0.85rem; border: 1px solid var(--border);">
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem;">
+            <div class="form-group" style="display: flex; flex-direction: column; gap: 0.4rem;">
+              <label for="doc-phone" style="font-size: 0.8rem; font-weight: 700; color: var(--text);">Contact Number</label>
+              <input type="tel" name="phoneNumber" id="doc-phone" class="form-control" placeholder="+91 99999 88888" required style="border-radius: 8px; padding: 0.65rem 0.85rem; border: 1px solid var(--border);">
+            </div>
+            <div class="form-group" style="display: flex; flex-direction: column; gap: 0.4rem;">
+              <label for="doc-fee" style="font-size: 0.8rem; font-weight: 700; color: var(--text);">Consultation Fee (₹)</label>
+              <input type="number" name="consultationFee" id="doc-fee" class="form-control" placeholder="500" min="0" required style="border-radius: 8px; padding: 0.65rem 0.85rem; border: 1px solid var(--border);">
+            </div>
+          </div>
+
+          <div class="form-group" style="display: flex; flex-direction: column; gap: 0.4rem;">
+            <label for="doc-bio" style="font-size: 0.8rem; font-weight: 700; color: var(--text);">Professional Bio</label>
+            <textarea name="bio" id="doc-bio" class="form-control" placeholder="Brief summary of experience..." rows="3" required style="border-radius: 8px; padding: 0.65rem 0.85rem; resize: vertical; border: 1px solid var(--border);"></textarea>
+          </div>
+          
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem;">
+            <div class="form-group" style="display: flex; flex-direction: column; gap: 0.4rem;">
+              <label for="doc-password" style="font-size: 0.8rem; font-weight: 700; color: var(--text);">Temporary Password</label>
+              <input type="password" name="password" id="doc-password" class="form-control" placeholder="At least 6 chars" required minlength="6" style="border-radius: 8px; padding: 0.65rem 0.85rem; border: 1px solid var(--border);">
+            </div>
+            <div class="form-group" style="display: flex; flex-direction: column; gap: 0.4rem;">
+              <label for="doc-confirm-password" style="font-size: 0.8rem; font-weight: 700; color: var(--text);">Confirm Password</label>
+              <input type="password" name="confirmPassword" id="doc-confirm-password" class="form-control" placeholder="Confirm password" required minlength="6" style="border-radius: 8px; padding: 0.65rem 0.85rem; border: 1px solid var(--border);">
+            </div>
+          </div>
+          
+        </div>
+
+        <!-- Modal Footer -->
+        <div style="padding: 1rem 1.75rem; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 0.5rem; background: var(--bg);">
+          <button type="button" onclick="closeRegisterModal()" class="btn btn-secondary" style="border-radius: 8px; padding: 0.55rem 1.25rem; font-weight: 700; font-size: 0.82rem;">
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-primary" style="border-radius: 8px; padding: 0.55rem 1.5rem; font-weight: 700; font-size: 0.82rem; background: var(--primary);">
+            Register Doctor
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+<style>
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+  
+  .admin-tab-btn {
+    flex: 1;
+    background: none;
+    border: none;
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+    white-space: nowrap;
+  }
+  .admin-tab-btn:hover {
+    color: var(--text);
+    background: rgba(15, 23, 42, 0.02);
+  }
+  .admin-tab-btn.active {
+    background: #fff;
+    color: #0f172a;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+  }
+  
+  .admin-table-row:hover {
+    background: rgba(15, 23, 42, 0.02);
+  }
+</style>
+
+<script>
+  function switchAdminTab(panelId) {
+    const panels = ['docs', 'revenue', 'blog'];
+    panels.forEach(p => {
+      const panelEl = document.getElementById('admin-panel-' + p);
+      if (panelEl) {
+        panelEl.style.display = p === panelId ? 'block' : 'none';
+        panelEl.classList.toggle('active', p === panelId);
+      }
+      
+      const tabButton = document.getElementById('admin-tab-' + p);
+      if (tabButton) {
+        tabButton.classList.toggle('active', p === panelId);
+      }
+    });
+  }
+
+  // Modal control functions
+  function openRegisterModal() {
+    const modal = document.getElementById('register-doctor-modal');
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeRegisterModal() {
+    const modal = document.getElementById('register-doctor-modal');
+    modal.style.display = 'none';
+    document.body.style.overflow = '';
+  }
+
+  // Close modal when clicking outside of modal card
+  window.addEventListener('click', (e) => {
+    const modal = document.getElementById('register-doctor-modal');
+    if (e.target === modal) {
+      closeRegisterModal();
+    }
+  });
+
+  // Set default panel view states on load
+  document.addEventListener('DOMContentLoaded', () => {
+    switchAdminTab('docs');
+  });
+
+  // Export Practitioners Directory Table to CSV
+  function exportTableToCSV(filename) {
+    const csv = [];
+    const rows = document.querySelectorAll("#doctors-table tr");
+    
+    for (let i = 0; i < rows.length; i++) {
+        let row = [], cols = rows[i].querySelectorAll("td, th");
+        let maxCols = Math.min(cols.length, 5); 
+        for (let j = 0; j < maxCols; j++) 
+            row.push('"' + cols[j].innerText.replace(/\s+/g, ' ').replace(/"/g, '""').trim() + '"');
+        csv.push(row.join(","));
+    }
+
+    const csvFile = new Blob([csv.join("\n")], {type: "text/csv"});
+    const downloadLink = document.createElement("a");
+    downloadLink.download = filename;
+    downloadLink.href = window.URL.createObjectURL(csvFile);
+    downloadLink.style.display = "none";
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+  }
+
+  // Export Doctor Earnings & Revenue Matrix Table to CSV
+  function exportRevenueTableToCSV(filename) {
+    const csv = [];
+    const rows = document.querySelectorAll("#revenue-table tr");
+    
+    for (let i = 0; i < rows.length; i++) {
+        let row = [], cols = rows[i].querySelectorAll("td, th");
+        for (let j = 0; j < cols.length; j++) 
+            row.push('"' + cols[j].innerText.replace(/\s+/g, ' ').replace(/"/g, '""').trim() + '"');
+        csv.push(row.join(","));
+    }
+
+    const csvFile = new Blob([csv.join("\n")], {type: "text/csv"});
+    const downloadLink = document.createElement("a");
+    downloadLink.download = filename;
+    downloadLink.href = window.URL.createObjectURL(csvFile);
+    downloadLink.style.display = "none";
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+  }
+</script>
+
+<%- include('../partials/footer') %>

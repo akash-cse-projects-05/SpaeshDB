@@ -1,0 +1,86 @@
+<%- include('partials/header') %>
+
+<div style="max-width: 800px; margin: 0 auto; padding: 2rem 0;">
+  <h1 style="font-size: 2.8rem; margin-bottom: 1rem; text-align: center;">Educational Resource Center</h1>
+  <p style="color: var(--text-secondary); text-align: center; font-size: 1.1rem; margin-bottom: 3rem;">
+    Access verified, easy-to-understand guidelines on HIV prevention, timelines, and medical interventions.
+  </p>
+
+  <!-- PEP Section -->
+  <section id="pep" class="card" style="margin-bottom: 3rem;">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem;">
+      <h2 style="color: var(--text);">PEP: Post-Exposure Prophylaxis</h2>
+      <span class="badge badge-pep" style="padding: 0.4rem 1rem; font-size: 0.8rem;">Emergency Intervention</span>
+    </div>
+    <p style="font-size: 1.05rem; margin-bottom: 1rem;">
+      <strong>PEP</strong> is a medical response taken <em>after</em> a potential exposure to HIV to prevent infection. It must be treated as an emergency.
+    </p>
+
+    <div style="background: rgba(239, 68, 68, 0.1); border-left: 4px solid var(--accent-red); padding: 1.25rem; border-radius: 0 8px 8px 0; margin-bottom: 1.5rem;">
+      <h4 style="color: #fca5a5; margin-bottom: 0.25rem;">🕒 Critical 72-Hour Timeline</h4>
+      <p style="font-size: 0.95rem; color: var(--text-secondary);">
+        PEP must be started within <strong>72 hours (3 days)</strong> of potential exposure. Efficacy drops significantly after 24 hours, and it is generally ineffective if started past the 72-hour mark.
+      </p>
+    </div>
+
+    <h3 style="margin-top: 1.5rem; margin-bottom: 0.75rem; font-size: 1.2rem;">How does PEP work?</h3>
+    <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+      PEP involves taking a 28-day course of three antiretroviral medications daily. These medicines prevent the HIV virus from replicating and permanently establishing itself in your immune system.
+    </p>
+
+    <h3 style="margin-top: 1.5rem; margin-bottom: 0.75rem; font-size: 1.2rem;">Common Side Effects</h3>
+    <p style="color: var(--text-secondary);">
+      Most people experience mild side effects, such as temporary nausea, fatigue, headache, or stomach discomfort. Do not stop taking PEP because of side effects without consulting your doctor first.
+    </p>
+  </section>
+
+  <!-- PrEP Section -->
+  <section id="prep" class="card" style="margin-bottom: 3rem;">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem;">
+      <h2 style="color: var(--text);">PrEP: Pre-Exposure Prophylaxis</h2>
+      <span class="badge badge-prep" style="padding: 0.4rem 1rem; font-size: 0.8rem;">Daily Routine</span>
+    </div>
+    <p style="font-size: 1.05rem; margin-bottom: 1rem;">
+      <strong>PrEP</strong> is a daily pill taken by HIV-negative individuals who are at high ongoing risk of contracting HIV to prevent getting infected.
+    </p>
+
+    <div style="background: rgba(6, 182, 212, 0.1); border-left: 4px solid var(--secondary); padding: 1.25rem; border-radius: 0 8px 8px 0; margin-bottom: 1.5rem;">
+      <h4 style="color: #a5f3fc; margin-bottom: 0.25rem;">📈 Up to 99% Protection</h4>
+      <p style="font-size: 0.95rem; color: var(--text-secondary);">
+        When taken consistently every day, PrEP reduces the risk of getting HIV from sex by about 99%. For people who inject drugs, it reduces the risk by at least 74%.
+      </p>
+    </div>
+
+    <h3 style="margin-top: 1.5rem; margin-bottom: 0.75rem; font-size: 1.2rem;">Who should take PrEP?</h3>
+    <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+      PrEP is recommended if you have an active sex life and do not consistently use condoms, have partners of unknown HIV status, or have a partner with HIV who is not yet virally suppressed.
+    </p>
+
+    <h3 style="margin-top: 1.5rem; margin-bottom: 0.75rem; font-size: 1.2rem;">Monitoring & Lab Tests</h3>
+    <p style="color: var(--text-secondary);">
+      Before starting PrEP, you must take an HIV test to confirm you are HIV-negative. While on PrEP, you should visit a health provider every 3 months for follow-up testing, kidney function monitoring, and STI screens.
+    </p>
+  </section>
+
+  <!-- Counselling Section -->
+  <section id="counselling" class="card">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem;">
+      <h2 style="color: var(--text);">General HIV Counselling</h2>
+      <span class="badge badge-general" style="padding: 0.4rem 1rem; font-size: 0.8rem;">Mental & Wellness Support</span>
+    </div>
+    <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+      Dealing with STI worries or potential exposure can cause intense anxiety. HIV counseling offers:
+    </p>
+    <ul style="margin-left: 1.5rem; color: var(--text-secondary); display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.5rem;">
+      <li>Confidential discussions regarding risk reduction.</li>
+      <li>Preparation for testing and explanation of diagnostic windows.</li>
+      <li>Post-test counseling to explain results (both negative and positive).</li>
+      <li>Assistance navigating relationship discussions and disclosure options.</li>
+    </ul>
+    <p style="color: var(--text-secondary);">
+      No matter your situation, Sparsh provides a supportive environment with empathetic counselors trained to answer questions clearly, without judgment.
+    </p>
+  </section>
+</div>
+
+<%- include('partials/footer') %>

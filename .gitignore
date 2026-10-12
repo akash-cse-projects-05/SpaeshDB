@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+frontend/node_modules/
+
+# Build outputs
+frontend/dist/
+frontend/build/
+dist/
+build/
+.vite/
+
+# Environment files
+.env
+.env.*
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Uploaded/generated content
+src/public/uploads/
+uploads/
+
+# Coverage / test output
+coverage/
+
+# IDE/editor files
+.vscode/
+.idea/
+
+# Optional: local database dumps
+*.sqlite
+*.sqlite3

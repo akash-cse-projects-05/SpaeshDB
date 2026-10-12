@@ -1,0 +1,204 @@
+<%- include('../partials/header') %>
+
+<div style="max-width: 1200px; width: 100%; margin: 0 auto; padding: 1.5rem 1.25rem; box-sizing: border-box; font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, sans-serif;">
+
+  <!-- Back Navigation Button -->
+  <div style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+    <a href="/admin/doctor/<%= doctor._id %>/details" style="display: inline-flex; align-items: center; gap: 0.5rem; color: var(--text-secondary); text-decoration: none; font-weight: 700; font-size: 0.88rem; transition: color 0.15s;" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--text-secondary)'">
+      <span>←</span> Back to Profile Details
+    </a>
+    <button onclick="window.print()" class="btn btn-secondary" style="padding: 0.5rem 1.15rem; font-weight: 700; font-size: 0.8rem; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); color: var(--text); cursor: pointer;">
+      <span>🖨️</span> Export Report
+    </button>
+  </div>
+
+  <!-- Header Block (Matches Doctor Dashboard) -->
+  <div class="dashboard-header" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border);">
+    <div>
+      <h1 style="font-size: 2.0rem; font-weight: 700; color: var(--text); letter-spacing: -0.03em; margin: 0 0 0.35rem 0;">
+        Doctor Analytics Workspace
+      </h1>
+      <p style="color: var(--text-secondary); font-size: 0.95rem; margin: 0;">
+        Performance and case intelligence metrics for <%= doctor.name %>
+      </p>
+    </div>
+  </div>
+
+  <!-- Primary General Graph Panel (Matches Doctor Dashboard consultation trends section) -->
+  <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; box-shadow: 0 4px 12px -2px rgba(0,0,0,0.03);">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+      <h3 style="font-size: 1.05rem; font-weight: 700; color: var(--text); margin: 0;">Consultation Case Trends</h3>
+      <span style="font-size: 0.75rem; font-weight: 600; color: var(--primary); background: rgba(13, 148, 136, 0.1); padding: 0.2rem 0.6rem; border-radius: 12px;">Timeline Summary</span>
+    </div>
+    <div style="position: relative; height: 260px; width: 100%;">
+      <canvas id="generalConsultationChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Detailed Dashboard Column Metrics (Matches Availability Management Grid Style) -->
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; align-items: start;">
+    
+    <!-- Box 1: Ratings Breakdown Card -->
+    <div style="background: #ffffff; border: 1px solid rgba(0,0,0,0.06); padding: 1.5rem; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.02); position: relative; overflow: hidden;">
+      <div style="position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: #0d9488;"></div>
+      <h3 style="color: var(--text); font-size: 1.1rem; font-weight: 700; margin-top: 0; margin-bottom: 1.25rem; letter-spacing: -0.01em; padding-left: 0.35rem;">Ratings Breakdown</h3>
+      
+      <div style="display: flex; flex-direction: column; gap: 0.75rem; padding-left: 0.35rem;">
+        <% 
+          const totalRatings = doctor.ratings ? doctor.ratings.length : 0;
+          [5, 4, 3, 2, 1].forEach(score => {
+            const count = stats.ratingBreakdown[score] || 0;
+            const pct = totalRatings > 0 ? Math.round((count / totalRatings) * 100) : 0;
+        %>
+          <div style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.82rem;">
+            <span style="font-weight: 700; color: var(--text); width: 45px; display: inline-flex; align-items: center; gap: 2px;">
+              <%= score %> ★
+            </span>
+            <div style="flex: 1; height: 8px; border-radius: 4px; background: rgba(15,23,42,0.05); overflow: hidden; position: relative;">
+              <div style="height: 100%; width: <%= pct %>%; background: #0d9488; border-radius: 4px; transition: width 0.3s;"></div>
+            </div>
+            <span style="width: 30px; text-align: right; color: var(--text-secondary); font-weight: 600;">
+              <%= pct %>%
+            </span>
+            <span style="color: var(--text-muted); font-size: 0.75rem; width: 25px; text-align: right;">
+              (<%= count %>)
+            </span>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+
+    <!-- Box 2: Billing Summary Card -->
+    <div style="background: #ffffff; border: 1px solid rgba(0,0,0,0.06); padding: 1.5rem; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.02); position: relative; overflow: hidden;">
+      <div style="position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: #2563eb;"></div>
+      <h3 style="color: var(--text); font-size: 1.1rem; font-weight: 700; margin-top: 0; margin-bottom: 1.25rem; letter-spacing: -0.01em; padding-left: 0.35rem;">Billing Performance Summary</h3>
+      
+      <div style="display: flex; flex-direction: column; gap: 0.88rem; padding-left: 0.35rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.88rem;">
+          <span style="color: var(--text-secondary); font-weight: 500;">Consultation Fee Rate:</span>
+          <strong style="color: var(--text);">₹<%= doctor.consultationFee || 500 %> / slot</strong>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.88rem;">
+          <span style="color: var(--text-secondary); font-weight: 500;">Revenue Generated:</span>
+          <strong style="color: #0d9488;">₹<%= stats.revenue %></strong>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.88rem; padding-top: 0.75rem; border-top: 1px solid var(--border);">
+          <span style="color: var(--text-secondary); font-weight: 500;">Projected Revenue:</span>
+          <% const projected = stats.confirmed * (doctor.consultationFee || 500); %>
+          <strong style="color: #2563eb;">₹<%= projected %></strong>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.88rem;">
+          <span style="color: var(--text-secondary); font-weight: 500;">Risk Lost (Cancellations):</span>
+          <% const lostVal = stats.cancelled * (doctor.consultationFee || 500); %>
+          <strong style="color: #64748b;">₹<%= lostVal %></strong>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- Load Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const appointmentsData = <%- JSON.stringify(appointments) %>;
+    const dateCounts = {};
+    
+    // Group active appointment status by date
+    appointmentsData.forEach(app => {
+      let dateStr = 'N/A';
+      try {
+        const rawDate = (app.appointmentSlot && app.appointmentSlot.date) || app.date || app.createdAt;
+        dateStr = new Date(rawDate).toISOString().split('T')[0];
+      } catch(e) {}
+      if (dateStr !== 'N/A') {
+        if (!dateCounts[dateStr]) {
+          dateCounts[dateStr] = { completed: 0, active: 0, cancelled: 0 };
+        }
+        if (app.status === 'Completed') {
+          dateCounts[dateStr].completed++;
+        } else if (app.status === 'Cancelled') {
+          dateCounts[dateStr].cancelled++;
+        } else {
+          dateCounts[dateStr].active++; // confirmed/pending
+        }
+      }
+    });
+
+    // Get the last 7 days chronologically
+    const sortedDates = Object.keys(dateCounts).sort((a,b) => new Date(a) - new Date(b)).slice(-7);
+    
+    const labels = sortedDates.map(d => {
+      try {
+        const dt = new Date(d);
+        return dt.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+      } catch(e) {
+        return d;
+      }
+    });
+
+    const completedData = sortedDates.map(d => dateCounts[d].completed);
+    const activeData = sortedDates.map(d => dateCounts[d].active);
+    const cancelledData = sortedDates.map(d => dateCounts[d].cancelled);
+
+    // Single General Consultation Chart (Matches Doctor Workspace Bar Chart)
+    const ctx = document.getElementById('generalConsultationChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels.length > 0 ? labels : ['No Data'],
+        datasets: [
+          {
+            label: 'Completed Sessions',
+            data: completedData.length > 0 ? completedData : [0],
+            backgroundColor: 'rgba(13, 148, 136, 0.8)', // Teal
+            borderRadius: 4,
+          },
+          {
+            label: 'Upcoming / Pending',
+            data: activeData.length > 0 ? activeData : [0],
+            backgroundColor: 'rgba(37, 99, 235, 0.5)', // Blue
+            borderRadius: 4,
+          },
+          {
+            label: 'Cancelled',
+            data: cancelledData.length > 0 ? cancelledData : [0],
+            backgroundColor: 'rgba(100, 116, 139, 0.4)', // Slate gray
+            borderRadius: 4,
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: { 
+            beginAtZero: true, 
+            ticks: { precision: 0, font: { family: "'Plus Jakarta Sans', sans-serif" } },
+            grid: { color: 'rgba(15, 23, 42, 0.03)' }
+          },
+          x: { 
+            grid: { display: false },
+            ticks: { font: { family: "'Plus Jakarta Sans', sans-serif", weight: 'bold' } }
+          }
+        },
+        plugins: {
+          legend: { 
+            position: 'top', 
+            align: 'end', 
+            labels: { 
+              boxWidth: 12, 
+              usePointStyle: true,
+              font: { family: "'Plus Jakarta Sans', sans-serif", weight: 'bold' }
+            } 
+          }
+        }
+      }
+    });
+  });
+</script>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,17 @@
+<%- include('../partials/header') %>
+
+<div style="text-align: center; padding: 6rem 1rem;">
+  <span style="font-size: 5rem;">⚠️</span>
+  <h1 style="font-size: 3rem; margin-top: 1rem; margin-bottom: 0.5rem; color: var(--text);">500 - Server Error</h1>
+  <p style="color: var(--text-secondary); max-width: 500px; margin: 0 auto 1.5rem;">
+    Something went wrong on our servers. Rest assured, your medical data remains fully secure.
+  </p>
+  <% if (typeof error !== 'undefined' && error) { %>
+    <div style="background: rgba(255,255,255,0.02); padding: 1rem; border-radius: 8px; border: 1px solid var(--border-color); font-family: monospace; max-width: 600px; margin: 0 auto 2rem; color: var(--accent-red); font-size: 0.9rem; text-align: left; overflow-x: auto;">
+      <%= error %>
+    </div>
+  <% } %>
+  <a href="/" class="btn btn-primary">Return to Homepage</a>
+</div>
+
+<%- include('../partials/footer') %>
