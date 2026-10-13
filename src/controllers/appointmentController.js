@@ -286,6 +286,15 @@ exports.getConfirm = async (req, res) => {
       req.flash('error', 'Appointment not found.');
       return res.redirect('/');
     }
+
+    // Verify role permissions: only assigned doctor or admin
+    const isDoctor = req.user.role === 'doctor' && appointment.doctorId.toString() === req.user._id.toString();
+    const isAdmin = req.user.role === 'admin';
+    if (!isDoctor && !isAdmin) {
+      req.flash('error', 'Unauthorized. Only the assigned doctor or administrator can confirm this consultation.');
+      return res.redirect('/');
+    }
+
     appointment.status = 'Confirmed';
     await appointment.save();
 
@@ -311,6 +320,16 @@ exports.getCancel = async (req, res) => {
       req.flash('error', 'Appointment not found.');
       return res.redirect('/');
     }
+
+    // Verify role permissions: patient of the appointment, assigned doctor, or admin
+    const isPatient = req.user.role === 'patient' && appointment.patientId.toString() === req.user._id.toString();
+    const isDoctor = req.user.role === 'doctor' && appointment.doctorId.toString() === req.user._id.toString();
+    const isAdmin = req.user.role === 'admin';
+    if (!isPatient && !isDoctor && !isAdmin) {
+      req.flash('error', 'Unauthorized action.');
+      return res.redirect('/');
+    }
+
     appointment.status = 'Cancelled';
     await appointment.save();
 
