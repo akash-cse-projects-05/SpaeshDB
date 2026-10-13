@@ -87,26 +87,41 @@ npm install
 ```
 
 ### 3. Environment Configuration
-Create a `.env` file at the root folder (default template provided):
-```env
-PORT=3000
-MONGODB_URI=mongodb://127.0.0.1:27017/sparsh
-SESSION_SECRET=your_secret_session_key
-NODE_ENV=development
+### 3. Environment Configuration
+Copy the provided `.env.example` file to create your `.env`:
+```bash
+cp .env.example .env
 ```
+Fill in your MongoDB connection string and session secret in `.env`.
 
 ### 4. Running the App
 Start the development server with live reload:
 ```bash
 npm run dev
 ```
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+Or start the production server:
+```bash
+npm start
+```
+Open [http://localhost:3001](http://localhost:3001) in your browser.
+
+---
+
+## 🔑 Default Administrator Account
+
+The system automatically initializes the default administrator on first boot:
+
+| Role | Email | Default Password | Dashboard |
+| :--- | :--- | :--- | :--- |
+| **Admin** | `admin@sparsh.org` | `adminpassword123` | `/admin/dashboard` |
+
+*(You can override the default admin password by setting `ADMIN_PASSWORD` in your `.env` file.)*
 
 ---
 
 ## 🧪 Running Integration Tests
 
-Ensure your local MongoDB instance is running, then execute the test suite:
+Execute the automated test suite with Jest:
 ```bash
 npm test
 ```
