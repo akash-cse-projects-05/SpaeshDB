@@ -42,3 +42,6 @@ coverage/
 # Optional: local database dumps
 *.sqlite
 *.sqlite3
+
+
+frontend
