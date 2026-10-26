@@ -13,6 +13,24 @@ const rateLimit = require('express-rate-limit');
 
 const app = express();
 
+// Normalize Vercel internal rewritten paths (e.g. /api -> / or /api/learn -> /learn)
+app.use((req, res, next) => {
+  if (req.url === '/api' || req.url === '/api/') {
+    req.url = '/';
+  } else if (req.url.startsWith('/api/')) {
+    req.url = req.url.slice(4) || '/';
+  }
+
+  if (req.originalUrl === '/api' || req.originalUrl === '/api/') {
+    req.originalUrl = '/';
+  } else if (req.originalUrl && req.originalUrl.startsWith('/api/')) {
+    req.originalUrl = req.originalUrl.slice(4) || '/';
+  }
+  next();
+});
+
+
+
 // Security middleware
 app.use(helmet({ contentSecurityPolicy: false })); // Disable CSP to prevent blocking CDNs/inline scripts
 
