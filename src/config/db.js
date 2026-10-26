@@ -8,7 +8,7 @@ const connectDB = async () => {
     return mongoose;
   }
 
-  const primaryURI = process.env.MONGODB_URI;
+  const primaryURI = process.env.MONGODB_URI || process.env.MONGODB_URL;
   const fallbackURI = 'mongodb://127.0.0.1:27017/sparsh';
 
   try {
