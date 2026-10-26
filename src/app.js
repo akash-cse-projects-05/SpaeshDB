@@ -55,8 +55,11 @@ app.set('views', [
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// Static Folder
+// Static Folders
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(process.cwd(), 'src', 'public')));
+app.use(express.static(path.join(process.cwd(), 'public')));
+
 
 // Express Session Middleware
 const sessionOptions = {

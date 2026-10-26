@@ -16,8 +16,9 @@ const connectDB = async () => {
       serverSelectionTimeoutMS: 5000
     });
     isConnected = true;
-    console.log(`MongoDB Connected: ${conn.connection.host}`);
+    console.log(`MongoDB Connected: ${conn.connection.host || 'Atlas Cluster'}`);
     return conn;
+
   } catch (error) {
     if (primaryURI && primaryURI !== fallbackURI) {
       console.warn(`⚠️ Primary Database connection failed: ${error.message}. Retrying with local fallback: ${fallbackURI}`);
