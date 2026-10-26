@@ -44,7 +44,12 @@ require('./config/passport')(passport);
 
 // Set View Engine
 app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
+app.set('views', [
+  path.join(__dirname, 'views'),
+  path.join(process.cwd(), 'src', 'views'),
+  path.join(process.cwd(), 'views')
+]);
+
 
 // Body Parser Middleware
 app.use(express.json());
@@ -141,7 +146,12 @@ app.use((req, res, next) => {
 // General Error handler
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).render('static/500', { title: '500 - Server Error', error: err.message, currentUser: req.user || null });
+  try {
+    res.status(500).render('static/500', { title: '500 - Server Error', error: err.message, currentUser: req.user || null });
+  } catch (renderErr) {
+    res.status(500).send(`<!DOCTYPE html><html><body><h1>500 - Server Error</h1><p>${err.message}</p></body></html>`);
+  }
 });
+
 
 module.exports = app;

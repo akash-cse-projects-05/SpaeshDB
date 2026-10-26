@@ -1,3 +1,11 @@
 const app = require('../src/app');
+const connectDB = require('../src/config/db');
 
-module.exports = app;
+module.exports = async (req, res) => {
+  try {
+    await connectDB();
+  } catch (err) {
+    console.error('MongoDB connection error in serverless function:', err.message);
+  }
+  return app(req, res);
+};
