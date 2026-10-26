@@ -113,7 +113,18 @@ app.use((req, res, next) => {
   next();
 });
 
+// Ensure Database is connected before executing routes in serverless environments
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+  } catch (err) {
+    console.error('⚠️ DB connection error in middleware:', err.message);
+  }
+  next();
+});
+
 // Route imports
+
 const staticRoutes = require('./routes/static');
 const authRoutes = require('./routes/auth');
 const patientRoutes = require('./routes/patient');
