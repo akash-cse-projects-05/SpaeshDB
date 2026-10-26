@@ -68,11 +68,19 @@ const sessionOptions = {
 };
 
 if (process.env.NODE_ENV !== 'test') {
-  sessionOptions.store = MongoStore.create({
-    clientPromise: connectDB().then(conn => conn.connection.getClient()),
+  const store = MongoStore.create({
+    clientPromise: connectDB().then(conn => conn.connection.getClient()).catch(err => {
+      console.error('⚠️ MongoStore failed to obtain MongoDB client:', err.message);
+      return null;
+    }),
     collectionName: 'sessions'
   });
+  store.on('error', (err) => {
+    console.error('⚠️ MongoStore runtime error:', err.message);
+  });
+  sessionOptions.store = store;
 }
+
 
 app.use(session(sessionOptions));
 
