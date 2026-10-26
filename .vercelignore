@@ -1,0 +1,6 @@
+frontend
+tests
+.wwebjs_auth
+.wwebjs_cache
+node_modules
+.git
