@@ -1,7 +1,9 @@
 const twilio = require('twilio');
 
-const provider = (process.env.WHATSAPP_PROVIDER || 'web').toLowerCase(); // 'web', 'twilio', or 'simulated'
+const defaultProvider = (process.env.NODE_ENV === 'production' || process.env.VERCEL) ? 'simulated' : 'web';
+const provider = (process.env.WHATSAPP_PROVIDER || defaultProvider).toLowerCase(); // 'web', 'twilio', or 'simulated'
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
+
 const authToken = process.env.TWILIO_AUTH_TOKEN;
 const twilioNumber = process.env.TWILIO_WHATSAPP_NUMBER || 'whatsapp:+14155238886';
 const contentSid = process.env.TWILIO_CONTENT_SID;
